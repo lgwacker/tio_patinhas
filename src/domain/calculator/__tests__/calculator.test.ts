@@ -1,12 +1,3 @@
-/**
- * Tests for Domain/Calculator module
- * 
- * Functions tested:
- * - calculateAveragePrice(operations[])
- * - calculateGainLoss(position, currentPrice)
- * - calculatePositionValue(quantidade, preco_medio, preco_atual)
- */
-
 import {
   calculateAveragePrice,
   calculateGainLoss,
@@ -22,7 +13,7 @@ describe('calculateAveragePrice', () => {
     
     const result = calculateAveragePrice(operations);
     
-    expect(result).toBe(10.0); // 1000 / 100 = 10.0
+    expect(result).toBe(10.0);
   });
 
   it('should calculate average price for multiple buy operations', () => {
@@ -33,11 +24,10 @@ describe('calculateAveragePrice', () => {
     
     const result = calculateAveragePrice(operations);
     
-    expect(result).toBe(11.0); // (1000 + 1200) / (100 + 100) = 2200 / 200 = 11.0
+    expect(result).toBe(11.0);
   });
 
   it('should calculate average price with partial sell', () => {
-    // Buy 100 at 10, then sell 50, then buy 50 at 12
     const operations: Operacao[] = [
       { data: new Date('2024-01-01'), tipo: 'COMPRA', quantidade: 100, valorTotal: 1000 },
       { data: new Date('2024-02-01'), tipo: 'VENDA', quantidade: 50, valorTotal: 600 },
@@ -46,8 +36,6 @@ describe('calculateAveragePrice', () => {
     
     const result = calculateAveragePrice(operations);
     
-    // After sell: 50 shares at avg 10 = 500 cost basis
-    // After second buy: (500 + 650) / (50 + 50) = 1150 / 100 = 11.5
     expect(result).toBe(11.5);
   });
 
@@ -92,8 +80,6 @@ describe('calculateAveragePrice', () => {
     
     const result = calculateAveragePrice(operations);
     
-    // After sell all, cost basis resets
-    // New buy: 1500 / 100 = 15.0
     expect(result).toBe(15.0);
   });
 });
@@ -109,8 +95,8 @@ describe('calculateGainLoss', () => {
     
     const result = calculateGainLoss(position, currentPrice);
     
-    expect(result.valor).toBe(500); // (15 - 10) * 100 = 500
-    expect(result.percentual).toBe(50); // (15 - 10) / 10 * 100 = 50%
+    expect(result.valor).toBe(500);
+    expect(result.percentual).toBe(50);
   });
 
   it('should calculate loss when current price is lower than average price', () => {
@@ -123,8 +109,8 @@ describe('calculateGainLoss', () => {
     
     const result = calculateGainLoss(position, currentPrice);
     
-    expect(result.valor).toBe(-200); // (8 - 10) * 100 = -200
-    expect(result.percentual).toBe(-20); // (8 - 10) / 10 * 100 = -20%
+    expect(result.valor).toBe(-200);
+    expect(result.percentual).toBe(-20);
   });
 
   it('should return zero gain/loss when prices are equal', () => {
@@ -179,8 +165,8 @@ describe('calculateGainLoss', () => {
     
     const result = calculateGainLoss(position, currentPrice);
     
-    expect(result.valor).toBe(-1000); // (0 - 10) * 100 = -1000
-    expect(result.percentual).toBe(-100); // (0 - 10) / 10 * 100 = -100%
+    expect(result.valor).toBe(-1000);
+    expect(result.percentual).toBe(-100);
   });
 
   it('should handle fractional percentual calculation correctly', () => {
@@ -193,8 +179,8 @@ describe('calculateGainLoss', () => {
     
     const result = calculateGainLoss(position, currentPrice);
     
-    expect(result.valor).toBeCloseTo(167, 0); // (35 - 33.33) * 100 = 167
-    expect(result.percentual).toBeCloseTo(5.01, 2); // (35 - 33.33) / 33.33 * 100 = 5.01%
+    expect(result.valor).toBeCloseTo(167, 0);
+    expect(result.percentual).toBeCloseTo(5.01, 2);
   });
 });
 
@@ -206,10 +192,10 @@ describe('calculatePositionValue', () => {
     
     const result = calculatePositionValue(quantidade, precoMedio, precoAtual);
     
-    expect(result.valorInvestido).toBe(1000); // 100 * 10
-    expect(result.valorAtual).toBe(1500); // 100 * 15
-    expect(result.ganhoPerda.valor).toBe(500); // 1500 - 1000
-    expect(result.ganhoPerda.percentual).toBe(50); // (500 / 1000) * 100
+    expect(result.valorInvestido).toBe(1000);
+    expect(result.valorAtual).toBe(1500);
+    expect(result.ganhoPerda.valor).toBe(500);
+    expect(result.ganhoPerda.percentual).toBe(50);
   });
 
   it('should calculate loss scenario correctly', () => {
@@ -247,7 +233,7 @@ describe('calculatePositionValue', () => {
     
     expect(result.valorInvestido).toBe(0);
     expect(result.valorAtual).toBe(1500);
-    expect(result.ganhoPerda.valor).toBe(0); // 0 because precoMedio is 0 (invalid state)
+    expect(result.ganhoPerda.valor).toBe(0);
     expect(result.ganhoPerda.percentual).toBe(0);
   });
 
