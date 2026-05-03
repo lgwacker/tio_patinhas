@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { DatabaseModule } from '../DatabaseModule';
 import { MigrationRunner } from '../MigrationRunner';
-import type { CreatePositionInput, CreateOperationInput, AssetClass, OperationType } from '@/types';
+import type { CreatePositionInput, CreateOperationInput } from '@/types';
 
 // Use in-memory database for tests
 const testDbPath = ':memory:';
@@ -27,7 +27,7 @@ describe('DatabaseModule', () => {
         const input: CreatePositionInput = {
           ticker: 'PETR4',
           nome: 'Petrobras PN',
-          classe_ativo: 'acao' as AssetClass,
+          classe_ativo: 'acao',
           setor: 'Energia',
           segmento: 'Petróleo',
           quantidade: 100,
@@ -50,7 +50,7 @@ describe('DatabaseModule', () => {
         const input: CreatePositionInput = {
           ticker: 'VALE3',
           nome: 'Vale SA',
-          classe_ativo: 'acao' as AssetClass,
+          classe_ativo: 'acao',
           quantidade: 50,
           preco_medio: 65.0,
         };
@@ -254,7 +254,7 @@ describe('DatabaseModule', () => {
       it('should create a compra operation', () => {
         const input: CreateOperationInput = {
           position_id: positionId,
-          tipo: 'compra' as OperationType,
+          tipo: 'compra',
           data: '2024-01-15',
           quantidade: 100,
           valor_total: 2500,
@@ -274,7 +274,7 @@ describe('DatabaseModule', () => {
       it('should create a venda operation', () => {
         const input: CreateOperationInput = {
           position_id: positionId,
-          tipo: 'venda' as OperationType,
+          tipo: 'venda',
           data: '2024-02-20',
           quantidade: 50,
           valor_total: 1500,

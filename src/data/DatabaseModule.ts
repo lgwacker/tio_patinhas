@@ -20,12 +20,12 @@ export class DatabaseModule {
   // =====================
 
   createPosition(input: CreatePositionInput): Position {
-    const stmt = this.db.prepare(`
+    const insertStmt = this.db.prepare(`
       INSERT INTO positions (ticker, nome, classe_ativo, setor, segmento, quantidade, preco_medio)
       VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(
+    const result = insertStmt.run(
       input.ticker,
       input.nome,
       input.classe_ativo,
@@ -36,7 +36,11 @@ export class DatabaseModule {
     );
 
     const id = result.lastInsertRowid as number;
-    return this.getPositionById(id)!;
+    const position = this.getPositionById(id);
+    if (!position) {
+      throw new Error(`Failed to create position: ${input.ticker}`);
+    }
+    return position;
   }
 
   getPositionById(id: number): Position | null {
@@ -120,15 +124,14 @@ export class DatabaseModule {
   // =====================
 
   createOperation(input: CreateOperationInput): Operation {
-    // Calculate preco_unitario
     const preco_unitario = input.valor_total / input.quantidade;
 
-    const stmt = this.db.prepare(`
+    const insertStmt = this.db.prepare(`
       INSERT INTO operations (position_id, tipo, data, quantidade, valor_total, preco_unitario)
       VALUES (?, ?, ?, ?, ?, ?)
     `);
 
-    const result = stmt.run(
+    const result = insertStmt.run(
       input.position_id,
       input.tipo,
       input.data,
@@ -138,7 +141,11 @@ export class DatabaseModule {
     );
 
     const id = result.lastInsertRowid as number;
-    return this.getOperationById(id)!;
+    const operation = this.getOperationById(id);
+    if (!operation) {
+      throw new Error(`Failed to create operation for position: ${input.position_id}`);
+    }
+    return operation;
   }
 
   getOperationById(id: number): Operation | null {
