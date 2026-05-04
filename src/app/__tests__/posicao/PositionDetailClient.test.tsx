@@ -116,4 +116,116 @@ describe('PositionDetailClient Accessibility', () => {
     const refreshButton = screen.getByRole('button', { name: 'Atualizar preço' });
     expect(refreshButton).toBeInTheDocument();
   });
+
+  describe('Nova Operação form', () => {
+    it('should have quantidade input with valid max attribute for accessibility', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the "Operação" button to show the form
+      const operacaoButton = screen.getByRole('button', { name: /Operação/i });
+      fireEvent.click(operacaoButton);
+
+      const input = screen.getByPlaceholderText('100');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should have valor_total input with valid max attribute for accessibility', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the "Operação" button to show the form
+      const operacaoButton = screen.getByRole('button', { name: /Operação/i });
+      fireEvent.click(operacaoButton);
+
+      const input = screen.getByPlaceholderText('2500.00');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should accept positive values in quantidade input', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the "Operação" button to show the form
+      const operacaoButton = screen.getByRole('button', { name: /Operação/i });
+      fireEvent.click(operacaoButton);
+
+      const input = screen.getByPlaceholderText('100');
+      fireEvent.change(input, { target: { value: '10' } });
+      expect(input).toHaveValue(10);
+    });
+
+    it('should accept positive values in valor_total input', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the "Operação" button to show the form
+      const operacaoButton = screen.getByRole('button', { name: /Operação/i });
+      fireEvent.click(operacaoButton);
+
+      const input = screen.getByPlaceholderText('2500.00');
+      fireEvent.change(input, { target: { value: '1000' } });
+      expect(input).toHaveValue(1000);
+    });
+  });
+
+  describe('Manual price form', () => {
+    it('should have price input with valid max attribute for accessibility', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the edit button to show the manual price form
+      const editButton = screen.getByRole('button', { name: 'Definir preço manual' });
+      fireEvent.click(editButton);
+
+      const input = screen.getByPlaceholderText('Ex: 28.50');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should accept positive values in manual price input', () => {
+      render(
+        <PositionDetailClient
+          position={mockPosition}
+          operations={mockOperations}
+        />
+      );
+
+      // Click the edit button to show the manual price form
+      const editButton = screen.getByRole('button', { name: 'Definir preço manual' });
+      fireEvent.click(editButton);
+
+      const input = screen.getByPlaceholderText('Ex: 28.50');
+      fireEvent.change(input, { target: { value: '50.00' } });
+      expect(input).toHaveValue(50);
+    });
+  });
 });
