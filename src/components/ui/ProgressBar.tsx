@@ -5,13 +5,13 @@ interface ProgressBarProps {
   className?: string;
 }
 
-/**
- * Visual bar showing percentage of portfolio
- */
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
+
 export function ProgressBar({ percentage, className = '' }: ProgressBarProps) {
-  // Clamp percentage between 0 and 100 for display
-  const clampedPercentage = Math.min(Math.max(percentage, 0), 100);
-  
+  const clampedPercentage = clamp(percentage, 0, 100);
+
   return (
     <div className={`flex items-center gap-2 ${className}`}>
       <div className="flex-1 h-2 bg-surface rounded-full overflow-hidden">

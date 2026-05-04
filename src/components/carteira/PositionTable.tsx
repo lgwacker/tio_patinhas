@@ -11,9 +11,6 @@ interface PositionTableProps {
   onPositionClick?: (position: PositionWithValues) => void;
 }
 
-/**
- * Desktop table view for positions
- */
 export function PositionTable({ positions, onPositionClick }: PositionTableProps) {
   return (
     <div className="hidden md:block overflow-x-auto">

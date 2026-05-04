@@ -1,26 +1,19 @@
 'use client';
 
 import React, { useMemo } from 'react';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionListProps, PositionWithValues } from '@/lib/carteira-types';
 import { PositionTable } from './PositionTable';
 import { PositionCardList } from './PositionCard';
 
-interface PositionListProps {
-  positions: PositionWithValues[];
-  onPositionClick?: (position: PositionWithValues) => void;
+function sortByValueDesc(positions: PositionWithValues[]) {
+  return [...positions].sort((a, b) => b.valor_atual - a.valor_atual);
 }
 
-/**
- * Combined position list with responsive design
- * Desktop: Table view
- * Mobile: Card view
- * Default sort: Valor Total descrescente
- */
 export function PositionList({ positions, onPositionClick }: PositionListProps) {
-  // Sort positions by Valor Total descrescente (default)
-  const sortedPositions = useMemo(() => {
-    return [...positions].sort((a, b) => b.valor_atual - a.valor_atual);
-  }, [positions]);
+  const sortedPositions = useMemo(
+    () => sortByValueDesc(positions),
+    [positions]
+  );
 
   if (positions.length === 0) {
     return (

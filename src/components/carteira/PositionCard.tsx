@@ -3,7 +3,7 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import type { PositionWithValues } from '@/lib/carteira-types';
-import { formatCurrency, formatQuantity } from '@/lib/formatters';
+import { formatCurrency, formatQuantity, formatPercentageAbsolute } from '@/lib/formatters';
 import { GainLossCurrency, GainLossIndicator } from '@/components/ui/GainLossIndicator';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 
@@ -12,9 +12,6 @@ interface PositionCardProps {
   onClick?: (position: PositionWithValues) => void;
 }
 
-/**
- * Mobile card view for a single position
- */
 export function PositionCard({ position, onClick }: PositionCardProps) {
   return (
     <Card
@@ -22,7 +19,6 @@ export function PositionCard({ position, onClick }: PositionCardProps) {
       onClick={() => onClick?.(position)}
     >
       <CardContent className="p-4">
-        {/* Header: Ticker and Valor Total */}
         <div className="flex justify-between items-start mb-3">
           <div>
             <h3 className="font-semibold text-text-primary">{position.ticker}</h3>
@@ -42,7 +38,6 @@ export function PositionCard({ position, onClick }: PositionCardProps) {
           </div>
         </div>
 
-        {/* Metrics Grid */}
         <div className="grid grid-cols-2 gap-3 mb-3">
           <div>
             <p className="text-xs text-text-secondary">Investido</p>
@@ -65,12 +60,11 @@ export function PositionCard({ position, onClick }: PositionCardProps) {
           <div>
             <p className="text-xs text-text-secondary">% Carteira</p>
             <p className="text-sm text-primary text-right">
-              {position.percentual_carteira.toFixed(1)}%
+              {formatPercentageAbsolute(position.percentual_carteira)}
             </p>
           </div>
         </div>
 
-        {/* Progress Bar */}
         <ProgressBar percentage={position.percentual_carteira} />
       </CardContent>
     </Card>
@@ -82,9 +76,6 @@ interface PositionCardListProps {
   onPositionClick?: (position: PositionWithValues) => void;
 }
 
-/**
- * Mobile card list view for positions
- */
 export function PositionCardList({ positions, onPositionClick }: PositionCardListProps) {
   return (
     <div className="md:hidden space-y-3">

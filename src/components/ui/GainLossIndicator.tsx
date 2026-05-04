@@ -7,18 +7,22 @@ interface GainLossIndicatorProps {
   className?: string;
 }
 
-/**
- * Displays a value with gain/loss coloring (dourado for gains, vermelho for losses)
- */
+function useGainLossStyle(value: number) {
+  const isProfit = value >= 0;
+  return {
+    isProfit,
+    colorClass: isProfit ? 'text-profit' : 'text-loss',
+    Icon: isProfit ? ArrowUp : ArrowDown,
+  };
+}
+
 export function GainLossIndicator({
   value,
   showIcon = true,
   className = '',
 }: GainLossIndicatorProps) {
-  const isProfit = value >= 0;
-  const colorClass = isProfit ? 'text-profit' : 'text-loss';
-  const Icon = isProfit ? ArrowUp : ArrowDown;
-  
+  const { colorClass, Icon } = useGainLossStyle(value);
+
   return (
     <span className={`${colorClass} ${className}`}>
       {showIcon && <Icon className="inline w-3 h-3 mr-1" />}
@@ -27,18 +31,13 @@ export function GainLossIndicator({
   );
 }
 
-/**
- * Displays a currency value with gain/loss coloring
- */
 export function GainLossCurrency({
   value,
   showIcon = true,
   className = '',
 }: GainLossIndicatorProps) {
-  const isProfit = value >= 0;
-  const colorClass = isProfit ? 'text-profit' : 'text-loss';
-  const Icon = isProfit ? ArrowUp : ArrowDown;
-  
+  const { colorClass, Icon } = useGainLossStyle(value);
+
   const formattedValue = new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -46,7 +45,7 @@ export function GainLossCurrency({
     maximumFractionDigits: 2,
     signDisplay: 'always',
   }).format(value);
-  
+
   return (
     <span className={`${colorClass} ${className}`}>
       {showIcon && <Icon className="inline w-3 h-3 mr-1" />}

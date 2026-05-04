@@ -9,9 +9,6 @@ interface AssetClassTabsProps {
   onTabChange: (assetClass: AssetClass) => void;
 }
 
-/**
- * Tabs for filtering positions by asset class
- */
 export function AssetClassTabs({ activeTab, onTabChange }: AssetClassTabsProps) {
   return (
     <div className="border-b border-border">
