@@ -18,6 +18,7 @@ jest.mock('lucide-react', () => ({
   Activity: () => <span data-testid="activity">Activity</span>,
   Plus: () => <span data-testid="plus">+</span>,
   History: () => <span data-testid="history">History</span>,
+  WifiOff: () => <span data-testid="wifi-off">WiFi Off</span>,
 }));
 
 const mockFetch = jest.fn();
@@ -172,5 +173,113 @@ describe('DashboardPage', () => {
     expect(screen.queryByText('Technical error that should not be visible')).not.toBeInTheDocument();
     expect(screen.queryByText(/Failed to fetch/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Erro:/)).not.toBeInTheDocument();
+  });
+
+  describe('Offline behavior (Issue #55)', () => {
+    let originalOnLine: boolean;
+
+    beforeEach(() => {
+      originalOnLine = navigator.onLine;
+    });
+
+    afterEach(() => {
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: originalOnLine,
+      });
+    });
+
+    it('should show offline message when API returns 503 offline indicator', async () => {
+      // Simulate offline state
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: false,
+      });
+
+      // Mock the Service Worker offline response
+      mockFetch.mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        json: async () => ({ offline: true, error: 'Offline - dados podem estar desatualizados' }),
+      });
+
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Você está offline')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText(/Parece que você perdeu a conexão com a internet/)).toBeInTheDocument();
+      expect(screen.getByText(/Os dados exibidos podem estar desatualizados/)).toBeInTheDocument();
+    });
+
+    it('should show offline indicator banner when data is loaded while offline', async () => {
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: false,
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          summary: {
+            totalValue: 10000,
+            totalInvested: 9000,
+            totalGainLoss: { value: 1000, percentage: 11.11 },
+            positionCount: 2,
+          },
+          assetClassDistribution: [],
+          recentOperations: [],
+        }),
+      });
+
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Dashboard')).toBeInTheDocument();
+      });
+
+      expect(screen.getByText('Você está offline')).toBeInTheDocument();
+      expect(screen.getByText(/Os dados exibidos podem estar desatualizados/)).toBeInTheDocument();
+    });
+
+    it('should show "Tentar Reconectar" button when offline', async () => {
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: false,
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        status: 503,
+        ok: false,
+        json: async () => ({ offline: true, error: 'Offline - dados podem estar desatualizados' }),
+      });
+
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Você está offline')).toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('button', { name: /tentar reconectar/i })).toBeInTheDocument();
+    });
+
+    it('should show generic error message when not offline and API fails', async () => {
+      Object.defineProperty(navigator, 'onLine', {
+        writable: true,
+        value: true,
+      });
+
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      render(<DashboardPage />);
+
+      await waitFor(() => {
+        expect(screen.getByText('Não foi possível carregar dados')).toBeInTheDocument();
+      });
+
+      // Should NOT show offline-specific messaging
+      expect(screen.queryByText('Você está offline')).not.toBeInTheDocument();
+    });
   });
 });

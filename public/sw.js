@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tio-patinhas-v3';
+const CACHE_NAME = 'tio-patinhas-v4';
 const STATIC_ASSETS = [
   '/',
   '/carteira',
@@ -11,7 +11,6 @@ const STATIC_ASSETS = [
   '/offline.html',
 ];
 
-// Install: cache static assets
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -21,7 +20,6 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -36,11 +34,58 @@ self.addEventListener('activate', (event) => {
 });
 
 const STATIC_ASSET_REGEX = /\.(js|css|png|jpg|jpeg|svg|ico|woff|woff2|ttf|eot)$/;
+const API_REGEX = /\/api\//;
 
-// Fetch: serve from cache or network with offline fallback
+async function staleWhileRevalidate(request, cache) {
+  const cached = await cache.match(request);
+  
+  const networkPromise = fetch(request).then((response) => {
+    if (response.ok) {
+      cache.put(request, response.clone());
+    }
+    return response;
+  }).catch(() => null);
+  
+  if (cached) {
+    networkPromise;
+    return cached;
+  }
+  
+  const networkResponse = await networkPromise;
+  if (networkResponse) {
+    return networkResponse;
+  }
+  
+  throw new Error('Network error and no cached data');
+}
+
+function createOfflineResponse() {
+  return new Response(
+    JSON.stringify({ offline: true, error: 'Offline - dados podem estar desatualizados' }),
+    {
+      status: 503,
+      statusText: 'Service Unavailable',
+      headers: { 'Content-Type': 'application/json' }
+    }
+  );
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  if (event.request.url.includes('/api/')) return;
+
+  const url = new URL(event.request.url);
+  const isApiRequest = API_REGEX.test(url.pathname);
+  const isStaticAsset = STATIC_ASSET_REGEX.test(url.pathname);
+  const isNavigation = event.request.mode === 'navigate';
+
+  if (isApiRequest) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => {
+        return staleWhileRevalidate(event.request, cache);
+      }).catch(() => createOfflineResponse())
+    );
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then((cached) => {
@@ -51,14 +96,12 @@ self.addEventListener('fetch', (event) => {
               cache.put(event.request, response.clone());
             });
           }
-        }).catch(() => {
-          // Network failed, but we have cached version - that's fine
-        });
+        }).catch(() => {});
         return cached;
       }
 
       return fetch(event.request).then((response) => {
-        if (response.ok && (event.request.mode === 'navigate' || STATIC_ASSET_REGEX.test(event.request.url))) {
+        if (response.ok && (isNavigation || isStaticAsset)) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, clone);
@@ -66,7 +109,7 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       }).catch(() => {
-        if (event.request.mode === 'navigate') {
+        if (isNavigation) {
           return caches.match('/offline.html');
         }
         return new Response('Network error - offline and not cached', {
@@ -78,17 +121,3 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
-// Background sync for offline form submissions (if supported)
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-forms') {
-    event.waitUntil(syncFormSubmissions());
-  }
-});
-
-// Placeholder for form sync functionality
-async function syncFormSubmissions() {
-  // This would sync any queued form submissions when back online
-  // Implementation would require IndexedDB to store pending submissions
-  console.log('[Service Worker] Syncing form submissions...');
-}

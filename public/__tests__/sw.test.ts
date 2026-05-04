@@ -67,13 +67,39 @@ describe('Service Worker Configuration', () => {
       expect(swCode).toContain("event.request.method !== 'GET'");
     });
 
-    it('should skip API requests', () => {
-      expect(swCode).toContain("/api/");
+    it('should cache static assets with proper extensions', () => {
+      expect(swCode).toMatch(/STATIC_ASSET_REGEX\.test\(url\.pathname\)|STATIC_ASSET_REGEX\.test\(event\.request\.url\)/);
+      expect(swCode).toMatch(/\\.\(js\|css\|png\|jpg\|jpeg\|svg\|ico\|woff\|woff2\|ttf\|eot\)\$/);
+    });
+  });
+
+  describe('API caching for offline support (Issue #55)', () => {
+    it('should have stale-while-revalidate function for API requests', () => {
+      expect(swCode).toContain('async function staleWhileRevalidate');
     });
 
-    it('should cache static assets with proper extensions', () => {
-      expect(swCode).toMatch(/STATIC_ASSET_REGEX\.test\(event\.request\.url\)/);
-      expect(swCode).toMatch(/\\\.\(js\|css\|png\|jpg\|jpeg\|svg\|ico\|woff\|woff2\|ttf\|eot\)\$/);
+    it('should detect API requests using regex', () => {
+      expect(swCode).toContain("/\\/api\\//");
+      expect(swCode).toContain('const isApiRequest');
+    });
+
+    it('should handle API requests separately from static assets', () => {
+      expect(swCode).toMatch(/if \(isApiRequest\)/);
+    });
+
+    it('should return offline indicator response when API fails and no cache', () => {
+      expect(swCode).toContain('JSON.stringify({ offline: true');
+      expect(swCode).toContain('Offline - dados podem estar desatualizados');
+    });
+
+    it('should return 503 status for offline API responses', () => {
+      expect(swCode).toMatch(/status:\s*503/);
+      expect(swCode).toContain("statusText: 'Service Unavailable'");
+    });
+
+    it('should have updated cache version for new API caching strategy', () => {
+      // v4 includes API stale-while-revalidate caching
+      expect(swCode).toMatch(/CACHE_NAME = 'tio-patinhas-v4'/);
     });
   });
 });
