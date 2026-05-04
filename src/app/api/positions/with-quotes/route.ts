@@ -6,6 +6,10 @@ import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
 import { createDatabase } from '@/lib/database-helpers';
 import type { Position } from '@/types';
 
+// Force dynamic rendering to prevent stale data caching
+// Related to Issue #54: Dashboard shows stale data after creating positions
+export const dynamic = 'force-dynamic';
+
 interface QuoteRow {
   ticker: string;
   preco: number;

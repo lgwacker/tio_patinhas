@@ -3,6 +3,10 @@ import { PositionValidationError } from '@/domain/position/PositionModule';
 import { createPositionModule } from '@/lib/composition-helpers';
 import type { CreateOperationInput } from '@/types';
 
+// Force dynamic rendering to prevent stale data caching
+// Related to Issue #54: Dashboard shows stale data after creating positions
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const positionModule = createPositionModule();
