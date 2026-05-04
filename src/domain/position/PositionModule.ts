@@ -191,6 +191,10 @@ export class PositionModule {
     return { position: updatedPosition, operation: createdOperation };
   }
 
+  getAllPositions(): Position[] {
+    return this.db.getAllPositions();
+  }
+
   getPositionById(positionId: number): Position | null {
     return this.db.getPositionById(positionId);
   }

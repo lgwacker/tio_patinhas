@@ -3,6 +3,20 @@ import { getPositionModule } from '@/lib/database';
 import { PositionValidationError } from '@/domain/position/PositionModule';
 import type { CreateOperationInput } from '@/types';
 
+export async function GET() {
+  try {
+    const positionModule = getPositionModule();
+    const positions = positionModule.getAllPositions();
+    return NextResponse.json({ positions });
+  } catch (error) {
+    console.error('Error fetching positions:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch positions' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
