@@ -187,10 +187,10 @@ export default function NovaPosicaoPage() {
             </div>
 
             <div className="border-t border-border pt-6">
-              <h3 className="text-lg font-semibold text-text-primary mb-4">
+              <h2 className="text-lg font-semibold text-text-primary mb-4">
                 <TrendingUp size={20} className="inline mr-2" />
                 Primeira Operação
-              </h3>
+              </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>

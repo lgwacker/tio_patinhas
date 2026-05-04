@@ -29,9 +29,9 @@ export function CardHeader({ children, className = '' }: CardProps) {
 
 export function CardTitle({ children, className = '' }: CardProps) {
   return (
-    <h3 className={`text-lg font-semibold text-text-primary ${className}`}>
+    <h2 className={`text-lg font-semibold text-text-primary ${className}`}>
       {children}
-    </h3>
+    </h2>
   );
 }
 

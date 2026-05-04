@@ -123,4 +123,21 @@ describe('NovaPosicaoPage Accessibility', () => {
       expect(input).toHaveAttribute('name', 'valor_total');
     });
   });
+
+  describe('Heading hierarchy', () => {
+    it('should have sequential heading order without skipping levels', () => {
+      render(<NovaPosicaoPage />);
+
+      const h1 = screen.getByRole('heading', { level: 1 });
+      expect(h1).toHaveTextContent('Nova Posição');
+
+      const h2s = screen.getAllByRole('heading', { level: 2 });
+      expect(h2s).toHaveLength(2);
+      expect(h2s[0]).toHaveTextContent('Informações do Ativo');
+      expect(h2s[1]).toHaveTextContent('Primeira Operação');
+
+      const h3s = screen.queryAllByRole('heading', { level: 3 });
+      expect(h3s).toHaveLength(0);
+    });
+  });
 });
