@@ -7,7 +7,7 @@ import { ArrowLeft, Plus, Calendar, DollarSign, TrendingUp } from 'lucide-react'
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { formatCurrency, calcularPrecoUnitario } from '@/lib/formatters';
-import { ASSET_CLASSES } from '@/lib/constants';
+import { ASSET_CLASSES, VALIDATION_LIMITS } from '@/lib/constants';
 
 export default function NovaPosicaoPage() {
   const router = useRouter();
@@ -234,7 +234,8 @@ export default function NovaPosicaoPage() {
                     id="quantidade"
                     name="quantidade"
                     type="number"
-                    min="1"
+                    min={VALIDATION_LIMITS.quantidade.min}
+                    max={VALIDATION_LIMITS.quantidade.max}
                     step="1"
                     value={formData.quantidade}
                     onChange={(e) => setFormData({ ...formData, quantidade: e.target.value })}
@@ -252,7 +253,8 @@ export default function NovaPosicaoPage() {
                     id="valor_total"
                     name="valor_total"
                     type="number"
-                    min="0.01"
+                    min={VALIDATION_LIMITS.valorTotal.min}
+                    max={VALIDATION_LIMITS.valorTotal.max}
                     step="0.01"
                     value={formData.valor_total}
                     onChange={(e) => setFormData({ ...formData, valor_total: e.target.value })}
