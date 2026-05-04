@@ -46,7 +46,7 @@ export function PositionTable({ positions }: PositionTableProps) {
               className="border-b border-border hover:bg-surface/50 cursor-pointer transition-colors"
             >
               <td colSpan={7} className="p-0">
-                <Link href={`/posicao/${position.id}`} className="contents">
+                <Link href={`/posicao/${position.id}`} className="contents" aria-label={`Ver detalhes de ${position.ticker}`}>
                   <div className="flex w-full">
                     <div className="py-3 px-4 flex-1">
                       <div className="font-medium text-text-primary">{position.ticker}</div>

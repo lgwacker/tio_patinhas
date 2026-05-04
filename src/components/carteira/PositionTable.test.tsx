@@ -88,6 +88,18 @@ describe('PositionTable', () => {
     expect(valeLink).toHaveAttribute('href', '/posicao/2');
   });
 
+  it('should have accessible links with aria-label for screen readers', () => {
+    render(<PositionTable positions={mockPositions} />);
+
+    const petrLink = screen.getByLabelText('Ver detalhes de PETR4');
+    expect(petrLink).toBeInTheDocument();
+    expect(petrLink).toHaveAttribute('href', '/posicao/1');
+
+    const valeLink = screen.getByLabelText('Ver detalhes de VALE3');
+    expect(valeLink).toBeInTheDocument();
+    expect(valeLink).toHaveAttribute('href', '/posicao/2');
+  });
+
   it('should have hidden class on mobile viewport', () => {
     const { container } = render(<PositionTable positions={mockPositions} />);
 
