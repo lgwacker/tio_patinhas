@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "sandcastle": "npx tsx .sandcastle/main.mts"
   },
   "dependencies": {
     "better-sqlite3": "^9.4.3",
