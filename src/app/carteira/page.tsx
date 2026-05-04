@@ -6,6 +6,8 @@ import { getDatabaseModule } from '@/lib/database';
 import { formatCurrency } from '@/lib/formatters';
 import { getProfitLossColorClasses } from '@/lib/ui-helpers';
 
+export const dynamic = 'force-dynamic';
+
 export default function CarteiraPage() {
   const dbModule = getDatabaseModule();
   const positions = dbModule.getAllPositions();

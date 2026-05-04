@@ -2,6 +2,8 @@ import { PositionDetailClient } from './PositionDetailClient';
 import { getPositionModule, getQuoteService } from '@/lib/database';
 import { notFound } from 'next/navigation';
 
+export const dynamic = 'force-dynamic';
+
 interface PositionPageProps {
   params: { id: string };
 }

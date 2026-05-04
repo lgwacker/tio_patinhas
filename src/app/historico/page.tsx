@@ -3,6 +3,8 @@ import { getDatabaseModule } from '@/lib/database';
 import { formatCurrency, formatDate } from '@/lib/formatters';
 import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
 
+export const dynamic = 'force-dynamic';
+
 export default function HistoricoPage() {
   const dbModule = getDatabaseModule();
   const operations = dbModule.getAllOperations();
