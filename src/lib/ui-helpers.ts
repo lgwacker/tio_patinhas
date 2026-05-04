@@ -14,3 +14,12 @@ export function getOperationTypeBadgeClasses(tipo: 'compra' | 'venda'): string {
 export function getProfitLossColorClasses(isProfit: boolean): string {
   return isProfit ? 'text-profit' : 'text-loss';
 }
+
+/**
+ * Format a percentage value for display with +/- sign
+ * Example: 5.5 -> "+5.50%", -3.2 -> "-3.20%"
+ */
+export function formatGainLossPercent(percent: number): string {
+  const sign = percent >= 0 ? '+' : '';
+  return `${sign}${percent.toFixed(2)}%`;
+}

@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { TrendingUp, TrendingDown, Plus, ArrowRight } from 'lucide-react';
+import { Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getDatabaseModule } from '@/lib/database';
 import { formatCurrency } from '@/lib/formatters';
-import { getProfitLossColorClasses } from '@/lib/ui-helpers';
+
+export const dynamic = 'force-dynamic';
 
 export default function CarteiraPage() {
   const dbModule = getDatabaseModule();
@@ -47,13 +48,7 @@ export default function CarteiraPage() {
         <div className="grid gap-4">
           {positions.map((position) => {
             const valorInvestido = position.quantidade * position.preco_medio;
-            const valorAtual = position.quantidade * position.preco_medio;
-            const ganho = valorAtual - valorInvestido;
-            const ganhoPercent = valorInvestido > 0 ? (ganho / valorInvestido) * 100 : 0;
-            const isProfit = ganho >= 0;
-            const profitLossClasses = getProfitLossColorClasses(isProfit);
             const quantidadeLabel = position.quantidade === 1 ? 'unidade' : 'unidades';
-            const ganhoSign = isProfit ? '+' : '';
 
             return (
               <Link key={position.id} href={`/posicao/${position.id}`}>
@@ -81,10 +76,9 @@ export default function CarteiraPage() {
                         <p className="text-lg font-bold text-text-primary">
                           {formatCurrency(valorInvestido)}
                         </p>
-                        <div className={`flex items-center justify-end gap-1 text-sm ${profitLossClasses}`}>
-                          {isProfit ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                          <span>{ganhoSign}{ganhoPercent.toFixed(2)}%</span>
-                        </div>
+                        <p className="text-sm text-text-secondary">
+                          Ver detalhes
+                        </p>
                       </div>
                       <ArrowRight size={20} className="text-text-secondary ml-4" />
                     </div>
