@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule } from '@/lib/database';
+import { getPositionModule, getQuoteService } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +16,22 @@ export async function GET(
     }
 
     const positionModule = getPositionModule();
-    const result = positionModule.getPositionWithCalculations(id, 0);
+    const quoteService = getQuoteService();
+
+    // Get position data first to obtain the ticker
+    const position = positionModule.getPositionById(id);
+    if (!position) {
+      return NextResponse.json(
+        { error: 'Posição não encontrada' },
+        { status: 404 }
+      );
+    }
+
+    // Fetch current price from quotes service (uses cache or fetches from APIs)
+    const precoAtual = await quoteService.fetchPrice(position.ticker) ?? 0;
+
+    // Get position with calculations using the current price
+    const result = positionModule.getPositionWithCalculations(id, precoAtual);
 
     if (!result) {
       return NextResponse.json(
