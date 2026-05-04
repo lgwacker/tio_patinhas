@@ -88,9 +88,9 @@ describe('CarteiraPage', () => {
   it('should show position count for each asset class in tabs', async () => {
     render(<CarteiraPage />);
 
-    // Wait for positions to load
+    // Wait for positions to load (both table and card views render the same content)
     await waitFor(() => {
-      expect(screen.getByText('PETR4')).toBeInTheDocument();
+      expect(screen.getAllByText('PETR4').length).toBeGreaterThan(0);
     });
 
     // Check that count badges are displayed
@@ -100,29 +100,29 @@ describe('CarteiraPage', () => {
   it('should filter positions when clicking on a tab', async () => {
     render(<CarteiraPage />);
 
-    // Wait for positions to load initially
+    // Wait for positions to load initially (both table and card views render)
     await waitFor(() => {
-      expect(screen.getByText('PETR4')).toBeInTheDocument();
+      expect(screen.getAllByText('PETR4').length).toBeGreaterThan(0);
     });
-    expect(screen.getByText('VALE3')).toBeInTheDocument();
+    expect(screen.getAllByText('VALE3').length).toBeGreaterThan(0);
 
     // Click on FIIs tab
     fireEvent.click(screen.getByText(/FIIs/));
 
-    // Should show only FII positions
+    // Should show only FII positions (both table and card views are filtered)
     await waitFor(() => {
-      expect(screen.queryByText('PETR4')).not.toBeInTheDocument();
+      expect(screen.queryAllByText('PETR4')).toHaveLength(0);
     });
-    expect(screen.queryByText('VALE3')).not.toBeInTheDocument();
-    expect(screen.getByText('HGLG11')).toBeInTheDocument();
+    expect(screen.queryAllByText('VALE3')).toHaveLength(0);
+    expect(screen.getAllByText('HGLG11').length).toBeGreaterThan(0);
   });
 
   it('should show empty state when no positions in selected asset class', async () => {
     render(<CarteiraPage />);
 
-    // Wait for positions to load
+    // Wait for positions to load (both table and card views render)
     await waitFor(() => {
-      expect(screen.getByText('PETR4')).toBeInTheDocument();
+      expect(screen.getAllByText('PETR4').length).toBeGreaterThan(0);
     });
 
     // Click on Renda Fixa tab (no positions)
@@ -173,30 +173,36 @@ describe('CarteiraPage', () => {
     });
   });
 
-  it('should render positions with correct asset class badges', async () => {
-    render(<CarteiraPage />);
+  it('should render both desktop table and mobile card views', async () => {
+    const { container } = render(<CarteiraPage />);
 
-    // Wait for positions to load (default tab is "acao")
+    // Wait for positions to load (default tab is "acao") - both table and card views render
     await waitFor(() => {
-      expect(screen.getByText('PETR4')).toBeInTheDocument();
+      expect(screen.getAllByText('PETR4').length).toBeGreaterThan(0);
     });
 
-    // Should show asset class labels (rendered as classe_ativo value)
-    // Default tab is "acao", so only acao positions are shown (PETR4 and VALE3)
-    expect(screen.getAllByText('acao').length).toBe(2);
+    // Both table and card views should render the same content
+    // Table view (desktop) has 'hidden md:block' class
+    // Card view (mobile) has 'md:hidden' class
 
-    // Switch to FIIs tab to see fii badge
-    fireEvent.click(screen.getByText(/FIIs/));
-    await waitFor(() => {
-      expect(screen.getByText('HGLG11')).toBeInTheDocument();
-    });
-    expect(screen.getByText('fii')).toBeInTheDocument();
+    // Verify table headers are present in table header elements (desktop view)
+    // Using role 'columnheader' to distinguish from card labels
+    const tableHeaders = screen.getAllByRole('columnheader');
+    const headerTexts = tableHeaders.map(h => h.textContent);
+    expect(headerTexts).toContain('Ticker');
+    expect(headerTexts).toContain('Quantidade');
+    expect(headerTexts).toContain('Valor Total');
+    expect(headerTexts).toContain('Investido');
+    expect(headerTexts).toContain('Ganho R$');
+    expect(headerTexts).toContain('Ganho %');
+    expect(headerTexts).toContain('% Carteira');
 
-    // Switch to Cripto tab to see cripto badge
-    fireEvent.click(screen.getByText(/Cripto/));
-    await waitFor(() => {
-      expect(screen.getByText('BTC')).toBeInTheDocument();
-    });
-    expect(screen.getByText('cripto')).toBeInTheDocument();
+    // Verify the table container exists with responsive classes
+    const tableContainer = container.querySelector('.hidden.md\\:block');
+    expect(tableContainer).toBeInTheDocument();
+
+    // Verify the card container exists with responsive classes  
+    const cardContainer = container.querySelector('.md\\:hidden');
+    expect(cardContainer).toBeInTheDocument();
   });
 });

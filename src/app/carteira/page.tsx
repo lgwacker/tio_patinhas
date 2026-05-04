@@ -3,11 +3,13 @@
 import { useState, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Plus, ArrowRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import { AssetClassTabs } from '@/components/carteira/AssetClassTabs';
+import { PositionList } from '@/components/carteira/PositionList';
 import { usePositions } from '@/hooks/usePositions';
-import { formatCurrency, formatAssetClassLabel } from '@/lib/formatters';
+import { formatCurrency } from '@/lib/formatters';
+import { enrichPositionsWithCalculatedValues } from '@/lib/position-helpers';
 import type { AssetClass } from '@/types';
 import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
 
@@ -28,9 +30,10 @@ export default function CarteiraPage() {
     return counts;
   }, [positions]);
 
-  // Filter positions by active tab
+  // Filter positions by active tab and enrich with calculated values
   const filteredPositions = useMemo(() => {
-    return positions.filter((pos) => pos.classe_ativo === activeTab);
+    const tabPositions = positions.filter((pos) => pos.classe_ativo === activeTab);
+    return enrichPositionsWithCalculatedValues(tabPositions);
   }, [positions, activeTab]);
 
   const totalInvestido = positions.reduce(
@@ -100,49 +103,9 @@ export default function CarteiraPage() {
           </p>
         </div>
       ) : (
-        <div className="grid gap-4">
-          {filteredPositions.map((position) => {
-            const valorInvestido = position.quantidade * position.preco_medio;
-            const quantidadeLabel = position.quantidade === 1 ? 'unidade' : 'unidades';
-
-            return (
-              <Link key={position.id} href={`/posicao/${position.id}`}>
-                <Card className="hover:bg-surface/80 transition-colors cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-lg font-bold text-text-primary">{position.ticker}</h3>
-                          <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded">
-                            {formatAssetClassLabel(position.classe_ativo)}
-                          </span>
-                        </div>
-                        <p className="text-text-secondary text-sm">{position.nome}</p>
-                        <div className="flex items-center gap-4 mt-2 text-sm">
-                          <span className="text-text-secondary">
-                            {position.quantidade} {quantidadeLabel}
-                          </span>
-                          <span className="text-text-secondary">
-                            PM: {formatCurrency(position.preco_medio)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-text-primary">
-                          {formatCurrency(valorInvestido)}
-                        </p>
-                        <p className="text-sm text-text-secondary">
-                          Ver detalhes
-                        </p>
-                      </div>
-                      <ArrowRight size={20} className="text-text-secondary ml-4" />
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+        <PositionList 
+          positions={filteredPositions}
+        />
       )}
     </div>
   );
