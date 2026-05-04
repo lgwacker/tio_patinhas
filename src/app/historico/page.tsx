@@ -15,15 +15,15 @@ interface HistoricoData {
 
 export default function HistoricoPage() {
   const [data, setData] = useState<HistoricoData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<boolean>(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [fetchTrigger, setFetchTrigger] = useState(0);
 
   useEffect(() => {
     async function fetchHistoricoData() {
       try {
-        setLoading(true);
-        setError(false);
+        setIsLoading(true);
+        setHasError(false);
         const response = await fetch('/api/historico');
         if (!response.ok) {
           throw new Error('Failed to fetch historico data');
@@ -32,20 +32,20 @@ export default function HistoricoPage() {
         setData(historicoData);
       } catch (err) {
         console.error('[Historico] Failed to fetch data:', err);
-        setError(true);
+        setHasError(true);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     }
 
     fetchHistoricoData();
-  }, [retryCount]);
+  }, [fetchTrigger]);
 
   function handleRetry() {
-    setRetryCount(prev => prev + 1);
+    setFetchTrigger(prev => prev + 1);
   }
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-text-secondary">Carregando...</div>
@@ -53,7 +53,7 @@ export default function HistoricoPage() {
     );
   }
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md mx-auto p-6">
