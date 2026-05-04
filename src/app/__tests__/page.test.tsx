@@ -151,4 +151,26 @@ describe('DashboardPage', () => {
 
     expect(screen.getByText('Visão geral da sua carteira')).toBeInTheDocument();
   });
+
+  it('should display consistent error message across all viewports', async () => {
+    // Issue #33: Ensure error messaging is consistent between desktop and mobile
+    // The error state should be a boolean to prevent leaking technical errors
+    mockFetch.mockRejectedValueOnce(new Error('Technical error that should not be visible'));
+
+    render(<DashboardPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Não foi possível carregar dados')).toBeInTheDocument();
+    });
+
+    // Verify consistent Portuguese error message is shown (not technical error)
+    expect(screen.getByText(/Ocorreu um problema ao carregar suas informações/)).toBeInTheDocument();
+    expect(screen.getByText(/Por favor, tente novamente/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /tentar novamente/i })).toBeInTheDocument();
+
+    // Ensure no technical error messages are visible
+    expect(screen.queryByText('Technical error that should not be visible')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Failed to fetch/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Erro:/)).not.toBeInTheDocument();
+  });
 });
