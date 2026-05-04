@@ -11,6 +11,13 @@ describe('ProgressBar', () => {
     expect(progressbar).toHaveAttribute('aria-valuemax', '100');
   });
 
+  it('should have accessible aria-label', () => {
+    render(<ProgressBar percentage={50} />);
+
+    const progressbar = screen.getByRole('progressbar');
+    expect(progressbar).toHaveAttribute('aria-label', 'Percentual da carteira');
+  });
+
   it('should display percentage text', () => {
     render(<ProgressBar percentage={32.7} />);
 

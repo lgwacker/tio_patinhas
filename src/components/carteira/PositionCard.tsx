@@ -13,12 +13,12 @@ interface PositionCardProps {
 
 export function PositionCard({ position }: PositionCardProps) {
   return (
-    <Link href={`/posicao/${position.id}`} aria-label={`Ver detalhes de ${position.ticker}`}>
+    <Link href={`/posicao/${position.id}`}>
       <Card className="cursor-pointer hover:border-primary/50 transition-colors">
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div>
-            <h3 className="font-semibold text-text-primary">{position.ticker}</h3>
+            <h2 className="font-semibold text-text-primary">{position.ticker}</h2>
             {position.nome && (
               <p className="text-xs text-text-secondary truncate max-w-[200px]">
                 {position.nome}

@@ -21,6 +21,7 @@ export function ProgressBar({ percentage, className = '' }: ProgressBarProps) {
           aria-valuenow={clampedPercentage}
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-label="Percentual da carteira"
           role="progressbar"
         />
       </div>

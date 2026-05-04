@@ -65,12 +65,11 @@ describe('PositionCard', () => {
     expect(link).toHaveAttribute('href', '/posicao/1');
   });
 
-  it('should have accessible link with aria-label for screen readers', () => {
+  it('should use h2 heading for proper heading hierarchy', () => {
     render(<PositionCard position={mockPosition} />);
 
-    const link = screen.getByLabelText('Ver detalhes de PETR4');
-    expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute('href', '/posicao/1');
+    const heading = screen.getByRole('heading', { level: 2 });
+    expect(heading).toHaveTextContent('PETR4');
   });
 
   it('should render without optional fields when not provided', () => {

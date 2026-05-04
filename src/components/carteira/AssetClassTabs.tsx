@@ -12,9 +12,10 @@ interface AssetClassTabsProps {
 export function AssetClassTabs({ activeTab, onTabChange, counts }: AssetClassTabsProps) {
   return (
     <div className="border-b border-border">
-      <nav className="flex gap-1 overflow-x-auto scrollbar-hide" aria-label="Asset class tabs">
+      <nav className="flex gap-1 overflow-x-auto scrollbar-hide" aria-label="Asset class tabs" role="tablist">
         {ASSET_CLASS_TABS.map((tab) => {
           const count = counts?.[tab.value] ?? 0;
+          const isActive = activeTab === tab.value;
           return (
             <button
               key={tab.value}
@@ -23,17 +24,19 @@ export function AssetClassTabs({ activeTab, onTabChange, counts }: AssetClassTab
                 px-4 py-3 text-sm font-medium whitespace-nowrap
                 border-b-2 transition-colors
                 ${
-                  activeTab === tab.value
+                  isActive
                     ? 'border-primary text-primary'
                     : 'border-transparent text-text-secondary hover:text-text-primary hover:border-border'
                 }
               `}
-              aria-selected={activeTab === tab.value}
+              aria-selected={isActive}
               role="tab"
             >
               {tab.label}
               {count > 0 && (
-                <span className="ml-1.5 text-xs opacity-70">({count})</span>
+                <span className={`ml-1.5 text-xs ${isActive ? 'text-text-primary' : 'opacity-70'}`}>
+                  ({count})
+                </span>
               )}
             </button>
           );
