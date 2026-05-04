@@ -17,13 +17,12 @@ let quoteService: QuotesService | null = null;
  * Ensures the data directory exists before opening the database.
  * Skips for in-memory databases (used in tests).
  */
-function ensureDataDirectory(dbPath: string): void {
-  // Skip for in-memory databases
-  if (dbPath === ':memory:' || dbPath.includes(':memory:')) {
+function ensureDataDirectory(databasePath: string): void {
+  if (databasePath.includes(':memory:')) {
     return;
   }
 
-  const dir = path.dirname(dbPath);
+  const dir = path.dirname(databasePath);
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
