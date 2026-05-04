@@ -78,7 +78,7 @@ export function PWAInstallPrompt() {
   };
 
   const handleDismiss = () => {
-    setInstallState((prev) => ({ ...prev, show: false }));
+    setInstallState({ prompt: null, show: false });
     localStorage.setItem(DISMISSAL_KEY, Date.now().toString());
   };
 

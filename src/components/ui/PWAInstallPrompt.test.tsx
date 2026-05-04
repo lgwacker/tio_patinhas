@@ -26,7 +26,7 @@ describe('PWAInstallPrompt', () => {
   it('shows install prompt when beforeinstallprompt event fires', async () => {
     render(<PWAInstallPrompt />);
 
-    // Simulate the beforeinstallprompt event wrapped in act()
+    // Simulate the beforeinstallprompt event
     const event = new Event('beforeinstallprompt', { bubbles: true });
     Object.defineProperty(event, 'preventDefault', { value: jest.fn() });
     Object.defineProperty(event, 'prompt', { value: jest.fn().mockResolvedValue(undefined) });
