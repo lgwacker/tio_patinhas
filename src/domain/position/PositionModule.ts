@@ -4,6 +4,26 @@ import { DatabaseModule } from '@/data/DatabaseModule';
 import { VALID_ASSET_CLASSES } from '@/lib/constants';
 import type { CreateOperationInput, Operation, Position, CreatePositionInput } from '@/types';
 
+const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
+const TICKER_REGEX = /^[A-Z0-9]{4,6}$/;
+
+function toDomainTipo(tipo: string): TipoOperacao {
+  return tipo.toUpperCase() as TipoOperacao;
+}
+
+function isValidTipo(tipo: string): boolean {
+  return tipo === 'compra' || tipo === 'venda';
+}
+
+function toDomainOperation(op: Operation): Operacao {
+  return {
+    data: new Date(op.data),
+    tipo: toDomainTipo(op.tipo),
+    quantidade: op.quantidade,
+    valorTotal: op.valor_total,
+  };
+}
+
 export interface ValidationError {
   field: string;
   message: string;
@@ -19,17 +39,14 @@ export class PositionModule {
   validateOperation(input: CreateOperationInput): ValidationError[] {
     const errors: ValidationError[] = [];
 
-    if (!input.tipo || (input.tipo !== 'compra' && input.tipo !== 'venda')) {
+    if (!input.tipo || !isValidTipo(input.tipo)) {
       errors.push({ field: 'tipo', message: 'Tipo deve ser compra ou venda' });
     }
 
     if (!input.data) {
       errors.push({ field: 'data', message: 'Data é obrigatória' });
-    } else {
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(input.data)) {
-        errors.push({ field: 'data', message: 'Data deve estar no formato YYYY-MM-DD' });
-      }
+    } else if (!DATE_REGEX.test(input.data)) {
+      errors.push({ field: 'data', message: 'Data deve estar no formato YYYY-MM-DD' });
     }
 
     if (input.quantidade <= 0) {
@@ -57,7 +74,7 @@ export class PositionModule {
 
     if (!ticker || ticker.trim().length === 0) {
       errors.push({ field: 'ticker', message: 'Ticker é obrigatório' });
-    } else if (!/^[A-Z0-9]{4,6}$/.test(ticker.toUpperCase())) {
+    } else if (!TICKER_REGEX.test(ticker.toUpperCase())) {
       errors.push({ field: 'ticker', message: 'Ticker deve conter 4-6 letras maiúsculas ou números' });
     }
 
@@ -159,12 +176,7 @@ export class PositionModule {
     const domainOperations: Operacao[] = [
       ...operations,
       createdOperation,
-    ].map(op => ({
-      data: new Date(op.data),
-      tipo: op.tipo.toUpperCase() as TipoOperacao,
-      quantidade: op.quantidade,
-      valorTotal: op.valor_total,
-    }));
+    ].map(toDomainOperation);
 
     // Use CarteiraCalculator for all position calculations
     const snapshot = CarteiraCalculator.calculateSnapshot(domainOperations);
@@ -211,12 +223,7 @@ export class PositionModule {
     if (!positionWithOps) return null;
 
     // Convert operations to domain types for CarteiraCalculator
-    const domainOperations: Operacao[] = positionWithOps.operations.map(op => ({
-      data: new Date(op.data),
-      tipo: op.tipo.toUpperCase() as TipoOperacao,
-      quantidade: op.quantidade,
-      valorTotal: op.valor_total,
-    }));
+    const domainOperations: Operacao[] = positionWithOps.operations.map(toDomainOperation);
 
     // Use CarteiraCalculator for all position calculations
     const snapshot = CarteiraCalculator.calculateSnapshot(domainOperations, precoAtual);
