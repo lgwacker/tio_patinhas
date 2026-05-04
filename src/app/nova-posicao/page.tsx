@@ -235,6 +235,7 @@ export default function NovaPosicaoPage() {
                     name="quantidade"
                     type="number"
                     min="1"
+                    max="999999999"
                     step="1"
                     value={formData.quantidade}
                     onChange={(e) => setFormData({ ...formData, quantidade: e.target.value })}
@@ -253,6 +254,7 @@ export default function NovaPosicaoPage() {
                     name="valor_total"
                     type="number"
                     min="0.01"
+                    max="999999999999"
                     step="0.01"
                     value={formData.valor_total}
                     onChange={(e) => setFormData({ ...formData, valor_total: e.target.value })}

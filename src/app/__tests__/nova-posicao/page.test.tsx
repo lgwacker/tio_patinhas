@@ -134,6 +134,30 @@ describe('NovaPosicaoPage Accessibility', () => {
       expect(input).toHaveAttribute('id', 'valor_total');
       expect(input).toHaveAttribute('name', 'valor_total');
     });
+
+    it('should have quantidade input with valid max attribute for accessibility', () => {
+      render(<NovaPosicaoPage />);
+
+      const input = screen.getByLabelText('Quantidade');
+      // Verify max attribute is set to prevent browser inferring valuemax="0" from empty string
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      // Max must be greater than or equal to min to avoid accessibility contradiction
+      expect(maxValue).toBeGreaterThanOrEqual(minValue);
+    });
+
+    it('should have valor_total input with valid max attribute for accessibility', () => {
+      render(<NovaPosicaoPage />);
+
+      const input = screen.getByLabelText(/Valor Total/);
+      // Verify max attribute is set to prevent browser inferring valuemax="0" from empty string
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      // Max must be greater than or equal to min to avoid accessibility contradiction
+      expect(maxValue).toBeGreaterThanOrEqual(minValue);
+    });
   });
 
   describe('Heading hierarchy', () => {
