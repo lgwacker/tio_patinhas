@@ -7,6 +7,10 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testMatch: ['**/__tests__/**/*.test.ts', '**/__tests__/**/*.test.tsx', '**/components/**/*.test.tsx'],
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/.sandcastle/',
+  ],
   transformIgnorePatterns: [
     'node_modules/(?!(lucide-react)/)',
   ],
