@@ -9,6 +9,7 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "pt-BR",
+  "categories": ["finance", "productivity"],
   "icons": [
     {
       "src": "/icon-192x192.png",
@@ -21,6 +22,22 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nova Posição",
+      "short_name": "Nova Posição",
+      "description": "Adicionar nova posição à carteira",
+      "url": "/nova-posicao",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Carteira",
+      "short_name": "Carteira",
+      "description": "Ver carteira de investimentos",
+      "url": "/carteira",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
     }
   ]
 }

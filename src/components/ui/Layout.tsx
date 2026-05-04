@@ -10,9 +10,15 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { FAB } from './FAB';
+import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 interface LayoutProps {
   children: React.ReactNode;
+  showFab?: boolean;
+  fabHref?: string;
+  fabLabel?: string;
+  fabOnClick?: () => void;
 }
 
 const navigation = [
@@ -22,7 +28,13 @@ const navigation = [
   { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ];
 
-export function Layout({ children }: LayoutProps) {
+export function Layout({ 
+  children, 
+  showFab = false,
+  fabHref,
+  fabLabel,
+  fabOnClick
+}: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -125,6 +137,18 @@ export function Layout({ children }: LayoutProps) {
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {children}
         </main>
+
+        {/* Floating Action Button */}
+        {showFab && (
+          <FAB 
+            href={fabHref}
+            onClick={fabOnClick}
+            label={fabLabel}
+          />
+        )}
+
+        {/* PWA Install Prompt */}
+        <PWAInstallPrompt />
       </div>
     </div>
   );

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Tio Patinhas</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #0F172A;
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    
+    .container {
+      max-width: 400px;
+      width: 100%;
+    }
+    
+    .icon {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 24px;
+      color: #F59E0B;
+    }
+    
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #F8FAFC;
+    }
+    
+    p {
+      font-size: 16px;
+      color: #94A3B8;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+    
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #3B82F6;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+      min-height: 48px;
+      min-width: 160px;
+    }
+    
+    .button:hover {
+      background: #2563EB;
+    }
+    
+    .button-secondary {
+      background: transparent;
+      border: 1px solid #475569;
+      color: #94A3B8;
+      margin-top: 12px;
+    }
+    
+    .button-secondary:hover {
+      background: rgba(71, 85, 105, 0.3);
+      color: #F8FAFC;
+    }
+    
+    .status {
+      margin-top: 24px;
+      padding: 12px 16px;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      font-size: 14px;
+      color: #EF4444;
+      display: none;
+    }
+    
+    .status.visible {
+      display: block;
+    }
+    
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 20px;
+      }
+      
+      p {
+        font-size: 14px;
+      }
+      
+      .button {
+        width: 100%;
+        min-height: 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- WiFi Off Icon -->
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="1" y1="1" x2="23" y2="23"></line>
+      <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+      <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+      <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+      <line x1="12" y1="20" x2="12.01" y2="20"></line>
+    </svg>
+    
+    <h1>Você está offline</h1>
+    <p>Parece que você perdeu a conexão com a internet. Verifique sua conexão e tente novamente.</p>
+    
+    <button class="button" onclick="tryReconnect()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Tentar novamente
+    </button>
+    
+    <a href="/" class="button button-secondary">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+      </svg>
+      Ir para Dashboard
+    </a>
+    
+    <div id="status" class="status">
+      Ainda offline. Verifique sua conexão.
+    </div>
+  </div>
+  
+  <script>
+    function tryReconnect() {
+      const status = document.getElementById('status');
+      
+      // Try to reload the page
+      if (navigator.onLine) {
+        window.location.reload();
+      } else {
+        status.classList.add('visible');
+        
+        // Listen for online event
+        window.addEventListener('online', function onOnline() {
+          window.removeEventListener('online', onOnline);
+          window.location.reload();
+        }, { once: true });
+      }
+    }
+    
+    // Auto-reload when coming back online
+    window.addEventListener('online', function() {
+      window.location.reload();
+    });
+    
+    // Hide status when going offline
+    window.addEventListener('offline', function() {
+      document.getElementById('status').classList.remove('visible');
+    });
+  </script>
+</body>
+</html>
