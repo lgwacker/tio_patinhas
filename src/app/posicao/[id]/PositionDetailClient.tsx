@@ -155,7 +155,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/carteira">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" aria-label="Voltar para carteira">
               <ArrowLeft size={20} />
             </Button>
           </Link>

@@ -79,7 +79,7 @@ export default function NovaPosicaoPage() {
       {/* Header */}
       <div className="flex items-center gap-4">
         <Link href="/carteira">
-          <Button variant="ghost" size="sm">
+          <Button variant="ghost" size="sm" aria-label="Voltar para carteira">
             <ArrowLeft size={20} />
           </Button>
         </Link>
