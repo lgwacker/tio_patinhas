@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Card, CardHeader, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign, Edit2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
@@ -286,7 +286,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>Nova Operação</CardTitle>
+            <h2 className="text-lg font-semibold text-text-primary">Nova Operação</h2>
           </CardHeader>
           <CardContent>
             {errors.length > 0 && (
@@ -384,7 +384,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
       {/* Operations History */}
       <Card>
         <CardHeader>
-          <CardTitle>Histórico de Operações</CardTitle>
+          <h2 className="text-lg font-semibold text-text-primary">Histórico de Operações</h2>
         </CardHeader>
         <CardContent>
           {operations.length === 0 ? (
