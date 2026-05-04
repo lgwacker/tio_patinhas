@@ -9,6 +9,14 @@ describe('AssetClassTabs', () => {
     mockOnTabChange.mockClear();
   });
 
+  it('should have tablist role on the navigation container', () => {
+    render(<AssetClassTabs activeTab="acao" onTabChange={mockOnTabChange} />);
+
+    const tablist = screen.getByRole('tablist');
+    expect(tablist).toBeInTheDocument();
+    expect(tablist).toHaveAttribute('aria-label', 'Asset class tabs');
+  });
+
   it('should render all asset class tabs', () => {
     render(<AssetClassTabs activeTab="acao" onTabChange={mockOnTabChange} />);
 
