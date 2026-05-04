@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getDatabaseModule } from '@/lib/database';
-import { formatCurrency } from '@/lib/formatters';
-import { formatAssetClassLabel } from '@/lib/constants';
+import { formatCurrency, formatAssetClassLabel } from '@/lib/formatters';
 
 export const dynamic = 'force-dynamic';
 

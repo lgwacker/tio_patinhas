@@ -14,13 +14,3 @@ export const ASSET_CLASSES: AssetClassOption[] = [
   { value: 'etf', label: 'ETF' },
   { value: 'cripto', label: 'Criptomoeda' },
 ];
-
-/**
- * Format asset class value to user-friendly label
- * @param assetClass - The raw asset class value (e.g., 'acao', 'fii')
- * @returns The formatted label (e.g., 'Ação', 'Fundo Imobiliário (FII)')
- */
-export function formatAssetClassLabel(assetClass: AssetClass): string {
-  const option = ASSET_CLASSES.find((c) => c.value === assetClass);
-  return option?.label ?? assetClass;
-}

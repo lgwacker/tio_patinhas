@@ -1,3 +1,5 @@
+import { ASSET_CLASSES, type AssetClass } from './constants';
+
 /**
  * Format number as Brazilian Real currency
  */
@@ -53,4 +55,9 @@ export function calcularPrecoUnitario(quantidade: string, valorTotal: string): s
     return (total / qtd).toFixed(2);
   }
   return '--';
+}
+
+export function formatAssetClassLabel(assetClass: AssetClass): string {
+  const option = ASSET_CLASSES.find((c) => c.value === assetClass);
+  return option?.label ?? assetClass;
 }
