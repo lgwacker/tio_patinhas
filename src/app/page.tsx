@@ -31,18 +31,17 @@ export default function DashboardPage() {
   const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
-    // Track online/offline status
     function handleOnline() {
       setIsOffline(false);
     }
     function handleOffline() {
       setIsOffline(true);
     }
-    
+
     setIsOffline(!navigator.onLine);
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     return () => {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
@@ -55,8 +54,7 @@ export default function DashboardPage() {
         setLoading(true);
         setError(false);
         const response = await fetch('/api/dashboard');
-        
-        // Check if response is the offline indicator from Service Worker
+
         if (response.status === 503) {
           const errorData = await response.json().catch(() => ({}));
           if (errorData.offline) {
@@ -66,7 +64,7 @@ export default function DashboardPage() {
             return;
           }
         }
-        
+
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
