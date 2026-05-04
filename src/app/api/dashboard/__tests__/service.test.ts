@@ -1,19 +1,39 @@
 import Database from 'better-sqlite3';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { DatabaseModule } from '@/data/DatabaseModule';
+import { QuoteResolver } from '@/domain/quotes';
 import { DashboardService } from '../service';
+
+class StubQuoteResolver implements QuoteResolver {
+  private prices: Map<string, number> = new Map();
+
+  setPrice(ticker: string, price: number): void {
+    this.prices.set(ticker.toUpperCase(), price);
+  }
+
+  resolve(ticker: string): number | null {
+    return this.prices.get(ticker.toUpperCase()) ?? null;
+  }
+
+  clear(): void {
+    this.prices.clear();
+  }
+}
 
 describe('DashboardService', () => {
   let db: Database.Database;
   let service: DashboardService;
   let dataModule: DatabaseModule;
+  let quoteResolver: StubQuoteResolver;
 
   beforeEach(() => {
     db = new Database(':memory:');
     const migrations = new MigrationRunner(db);
     migrations.runMigrations();
-    service = new DashboardService(db);
+    
     dataModule = new DatabaseModule(db);
+    quoteResolver = new StubQuoteResolver();
+    service = new DashboardService(dataModule, quoteResolver);
   });
 
   afterEach(() => {
@@ -34,7 +54,6 @@ describe('DashboardService', () => {
     });
 
     it('should calculate totals correctly with single position', () => {
-      // Create a position
       const position = dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras PN',
@@ -43,7 +62,6 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Create an operation
       dataModule.createOperation({
         position_id: position.id,
         tipo: 'compra',
@@ -63,8 +81,7 @@ describe('DashboardService', () => {
     });
 
     it('should calculate gain/loss when quote exists', () => {
-      // Create a position
-      const position = dataModule.createPosition({
+      dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras PN',
         classe_ativo: 'acao',
@@ -72,8 +89,7 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Insert a quote with higher price
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('PETR4', 30.0);
+      quoteResolver.setPrice('PETR4', 30.0);
 
       const data = service.getDashboardData();
 
@@ -88,7 +104,6 @@ describe('DashboardService', () => {
     });
 
     it('should calculate asset class distribution', () => {
-      // Create positions in different asset classes
       dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras',
@@ -105,9 +120,8 @@ describe('DashboardService', () => {
         preco_medio: 150.0,
       });
 
-      // Add quotes
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('PETR4', 30.0);
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('HGLG11', 160.0);
+      quoteResolver.setPrice('PETR4', 30.0);
+      quoteResolver.setPrice('HGLG11', 160.0);
 
       const data = service.getDashboardData();
 
@@ -117,7 +131,6 @@ describe('DashboardService', () => {
       
       expect(data.assetClassDistribution).toHaveLength(2);
       
-      // Ações should be first (higher value)
       const acoes = data.assetClassDistribution.find(d => d.classe_ativo === 'acao');
       expect(acoes).toBeDefined();
       expect(acoes?.value).toBe(3000);
@@ -125,7 +138,6 @@ describe('DashboardService', () => {
       expect(acoes?.count).toBe(1);
       expect(acoes?.label).toBe('Ações');
 
-      // FIIs should be second
       const fiis = data.assetClassDistribution.find(d => d.classe_ativo === 'fii');
       expect(fiis).toBeDefined();
       expect(fiis?.value).toBe(1600);
@@ -168,7 +180,6 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Create 7 operations
       for (let i = 0; i < 7; i++) {
         dataModule.createOperation({
           position_id: position.id,
@@ -182,8 +193,34 @@ describe('DashboardService', () => {
       const data = service.getDashboardData();
 
       expect(data.recentOperations).toHaveLength(5);
-      // Should be sorted by date descending, so latest first
       expect(data.recentOperations[0].data).toBe('2024-01-21');
+    });
+
+    it('should use stubbed quote resolver without database seeding', () => {
+      dataModule.createPosition({
+        ticker: 'AAPL',
+        nome: 'Apple Inc',
+        classe_ativo: 'acao',
+        quantidade: 50,
+        preco_medio: 100.0,
+      });
+
+      expect(quoteResolver.resolve('AAPL')).toBeNull();
+      
+      quoteResolver.setPrice('AAPL', 150.0);
+      expect(quoteResolver.resolve('AAPL')).toBe(150.0);
+      
+      const data = service.getDashboardData();
+      expect(data.summary.totalValue).toBe(7500);
+      expect(data.summary.totalInvested).toBe(5000);
+    });
+
+    it('should isolate tests by clearing stub resolver between tests', () => {
+      quoteResolver.setPrice('TEST', 100.0);
+      expect(quoteResolver.resolve('TEST')).toBe(100.0);
+      
+      quoteResolver.clear();
+      expect(quoteResolver.resolve('TEST')).toBeNull();
     });
   });
 });
