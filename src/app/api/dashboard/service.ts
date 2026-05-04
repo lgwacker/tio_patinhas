@@ -6,7 +6,6 @@ import {
   DashboardSummary,
   AssetClassDistribution,
   PositionWithQuote,
-  Quote,
 } from '@/domain/dashboard';
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
@@ -70,8 +69,11 @@ export class DashboardService {
   }
 
   private getCurrentPrice(ticker: string): number | null {
-    const row = this.db.prepare('SELECT preco FROM quotes WHERE ticker = ?').get(ticker) as Quote | undefined;
-    return row?.preco ?? null;
+    const row = this.db.prepare('SELECT preco FROM quotes WHERE ticker = ?').get(ticker);
+    if (row && typeof row === 'object' && 'preco' in row && typeof row.preco === 'number') {
+      return row.preco;
+    }
+    return null;
   }
 
   private calculateSummary(positions: PositionWithQuote[]): DashboardSummary {

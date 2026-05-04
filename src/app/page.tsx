@@ -78,6 +78,9 @@ export default function DashboardPage() {
 
   const { summary, assetClassDistribution, recentOperations } = data;
   const isPositive = summary.totalGainLoss.value >= 0;
+  
+  const gainLossColorClass = isPositive ? 'text-profit' : 'text-loss';
+  const TrendIcon = isPositive ? TrendingUp : TrendingDown;
 
   return (
     <div className="space-y-6">
@@ -106,8 +109,8 @@ export default function DashboardPage() {
             <div className="text-2xl font-bold text-text-primary">
               {formatCurrency(summary.totalValue)}
             </div>
-            <div className={`flex items-center gap-1 mt-2 text-sm ${isPositive ? 'text-profit' : 'text-loss'}`}>
-              {isPositive ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+            <div className={`flex items-center gap-1 mt-2 text-sm ${gainLossColorClass}`}>
+              <TrendIcon size={16} />
               <span>{formatPercentage(summary.totalGainLoss.percentage)}</span>
               <span className="text-text-secondary ml-1">
                 ({formatCurrency(summary.totalGainLoss.value)})
@@ -141,19 +144,15 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
-              {isPositive ? (
-                <TrendingUp size={18} className="text-profit" />
-              ) : (
-                <TrendingDown size={18} className="text-loss" />
-              )}
+              <TrendIcon size={18} className={gainLossColorClass} />
               Ganho Total
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className={`text-2xl font-bold ${isPositive ? 'text-profit' : 'text-loss'}`}>
+            <div className={`text-2xl font-bold ${gainLossColorClass}`}>
               {formatCurrency(summary.totalGainLoss.value)}
             </div>
-            <div className={`text-sm mt-2 ${isPositive ? 'text-profit' : 'text-loss'}`}>
+            <div className={`text-sm mt-2 ${gainLossColorClass}`}>
               {formatPercentage(summary.totalGainLoss.percentage)}
             </div>
           </CardContent>
@@ -214,32 +213,38 @@ export default function DashboardPage() {
             </p>
           ) : (
             <div className="space-y-3">
-              {recentOperations.map((operation) => (
-                <div
-                  key={operation.id}
-                  className="flex items-center justify-between p-3 bg-surface rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${operation.tipo === 'compra' ? 'bg-profit' : 'bg-loss'}`} />
-                    <div>
+              {recentOperations.map((operation) => {
+                const isPurchase = operation.tipo === 'compra';
+                const operationColor = isPurchase ? 'bg-profit' : 'bg-loss';
+                const operationLabel = isPurchase ? 'Compra' : 'Venda';
+                
+                return (
+                  <div
+                    key={operation.id}
+                    className="flex items-center justify-between p-3 bg-surface rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${operationColor}`} />
+                      <div>
+                        <div className="font-medium text-text-primary">
+                          {operationLabel} de {operation.ticker}
+                        </div>
+                        <div className="text-sm text-text-secondary">
+                          {operation.quantidade} unidades • {formatDate(operation.data)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
                       <div className="font-medium text-text-primary">
-                        {operation.tipo === 'compra' ? 'Compra' : 'Venda'} de {operation.ticker}
+                        {formatCurrency(operation.valor_total)}
                       </div>
-                      <div className="text-sm text-text-secondary">
-                        {operation.quantidade} unidades • {formatDate(operation.data)}
+                      <div className="text-xs text-text-secondary">
+                        {formatCurrency(operation.preco_unitario)}/un
                       </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-medium text-text-primary">
-                      {formatCurrency(operation.valor_total)}
-                    </div>
-                    <div className="text-xs text-text-secondary">
-                      {formatCurrency(operation.preco_unitario)}/un
-                    </div>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
           
