@@ -72,9 +72,8 @@ describe('Service Worker Configuration', () => {
     });
 
     it('should cache static assets with proper extensions', () => {
-      expect(swCode).toMatch(/shouldCache\(event\.request\.url\)/);
-      // The regex in sw.js has escaped backslash, so we need to check for the actual pattern
-      expect(swCode).toMatch(/\.\(js\|css\|png\|jpg\|jpeg\|svg\|ico\|woff\|woff2\|ttf\|eot\)\$/);
+      expect(swCode).toMatch(/STATIC_ASSET_REGEX\.test\(event\.request\.url\)/);
+      expect(swCode).toMatch(/\\\.\(js\|css\|png\|jpg\|jpeg\|svg\|ico\|woff\|woff2\|ttf\|eot\)\$/);
     });
   });
 });
