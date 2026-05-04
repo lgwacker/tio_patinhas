@@ -102,6 +102,13 @@ describe('NovaPosicaoPage Accessibility', () => {
       expect(select).toHaveAttribute('name', 'tipo');
     });
 
+    it('should have tipo select with aria-label for accessibility', () => {
+      render(<NovaPosicaoPage />);
+
+      const select = screen.getByLabelText('Tipo');
+      expect(select).toHaveAttribute('aria-label', 'Tipo');
+    });
+
     it('should have data input with associated label', () => {
       render(<NovaPosicaoPage />);
 
@@ -124,6 +131,13 @@ describe('NovaPosicaoPage Accessibility', () => {
       expect(input).toHaveAttribute('name', 'quantidade');
     });
 
+    it('should have quantidade input with aria-label for accessibility', () => {
+      render(<NovaPosicaoPage />);
+
+      const input = screen.getByLabelText('Quantidade');
+      expect(input).toHaveAttribute('aria-label', 'Quantidade');
+    });
+
     it('should have valor_total input with associated label', () => {
       render(<NovaPosicaoPage />);
 
@@ -133,6 +147,13 @@ describe('NovaPosicaoPage Accessibility', () => {
       const input = screen.getByLabelText(/Valor Total/);
       expect(input).toHaveAttribute('id', 'valor_total');
       expect(input).toHaveAttribute('name', 'valor_total');
+    });
+
+    it('should have valor_total input with aria-label for accessibility', () => {
+      render(<NovaPosicaoPage />);
+
+      const input = screen.getByLabelText(/Valor Total/);
+      expect(input).toHaveAttribute('aria-label', 'Valor Total (R$)');
     });
 
     it('should have quantidade input with valid max attribute for accessibility', () => {

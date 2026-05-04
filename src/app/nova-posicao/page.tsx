@@ -203,6 +203,7 @@ export default function NovaPosicaoPage() {
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as 'compra' | 'venda' })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                    aria-label="Tipo"
                   >
                     <option value="compra">Compra</option>
                     <option value="venda">Venda</option>
@@ -241,6 +242,7 @@ export default function NovaPosicaoPage() {
                     onChange={(e) => setFormData({ ...formData, quantidade: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="100"
+                    aria-label="Quantidade"
                     required
                   />
                 </div>
@@ -260,6 +262,7 @@ export default function NovaPosicaoPage() {
                     onChange={(e) => setFormData({ ...formData, valor_total: e.target.value })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                     placeholder="2500.00"
+                    aria-label="Valor Total (R$)"
                     required
                   />
                 </div>
