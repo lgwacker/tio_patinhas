@@ -1,7 +1,6 @@
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { Position, AssetClass, Operation } from '@/types';
 import { QuoteResolver } from '@/domain/quotes';
-import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
 import {
   DashboardData,
   DashboardSummary,
@@ -29,11 +28,7 @@ function roundToTwoDecimals(value: number): number {
 
 /**
  * DashboardService provides aggregated portfolio data for the dashboard view.
- * 
- * Architecture:
- * - Depends on QuoteResolver interface for price lookups (not raw SQL)
- * - Uses CarteiraCalculator for all position value calculations
- * - Accepts dependencies through constructor for testability
+ * Dependencies are injected through the constructor for testability.
  */
 export class DashboardService {
   constructor(

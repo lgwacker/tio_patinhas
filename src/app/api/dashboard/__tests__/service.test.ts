@@ -4,10 +4,6 @@ import { DatabaseModule } from '@/data/DatabaseModule';
 import { QuoteResolver } from '@/domain/quotes';
 import { DashboardService } from '../service';
 
-/**
- * Stub implementation of QuoteResolver for testing.
- * Returns fixed prices without needing to seed database tables.
- */
 class StubQuoteResolver implements QuoteResolver {
   private prices: Map<string, number> = new Map();
 
@@ -58,7 +54,6 @@ describe('DashboardService', () => {
     });
 
     it('should calculate totals correctly with single position', () => {
-      // Create a position
       const position = dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras PN',
@@ -67,7 +62,6 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Create an operation
       dataModule.createOperation({
         position_id: position.id,
         tipo: 'compra',
@@ -87,8 +81,7 @@ describe('DashboardService', () => {
     });
 
     it('should calculate gain/loss when quote exists', () => {
-      // Create a position
-      const position = dataModule.createPosition({
+      dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras PN',
         classe_ativo: 'acao',
@@ -96,7 +89,6 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Set a quote price using the stub resolver (no raw SQL needed!)
       quoteResolver.setPrice('PETR4', 30.0);
 
       const data = service.getDashboardData();
@@ -112,7 +104,6 @@ describe('DashboardService', () => {
     });
 
     it('should calculate asset class distribution', () => {
-      // Create positions in different asset classes
       dataModule.createPosition({
         ticker: 'PETR4',
         nome: 'Petrobras',
@@ -129,7 +120,6 @@ describe('DashboardService', () => {
         preco_medio: 150.0,
       });
 
-      // Set quote prices using stub resolver
       quoteResolver.setPrice('PETR4', 30.0);
       quoteResolver.setPrice('HGLG11', 160.0);
 
@@ -141,7 +131,6 @@ describe('DashboardService', () => {
       
       expect(data.assetClassDistribution).toHaveLength(2);
       
-      // Ações should be first (higher value)
       const acoes = data.assetClassDistribution.find(d => d.classe_ativo === 'acao');
       expect(acoes).toBeDefined();
       expect(acoes?.value).toBe(3000);
@@ -149,7 +138,6 @@ describe('DashboardService', () => {
       expect(acoes?.count).toBe(1);
       expect(acoes?.label).toBe('Ações');
 
-      // FIIs should be second
       const fiis = data.assetClassDistribution.find(d => d.classe_ativo === 'fii');
       expect(fiis).toBeDefined();
       expect(fiis?.value).toBe(1600);
@@ -192,7 +180,6 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Create 7 operations
       for (let i = 0; i < 7; i++) {
         dataModule.createOperation({
           position_id: position.id,
@@ -206,12 +193,10 @@ describe('DashboardService', () => {
       const data = service.getDashboardData();
 
       expect(data.recentOperations).toHaveLength(5);
-      // Should be sorted by date descending, so latest first
       expect(data.recentOperations[0].data).toBe('2024-01-21');
     });
 
     it('should use stubbed quote resolver without database seeding', () => {
-      // Create positions
       dataModule.createPosition({
         ticker: 'AAPL',
         nome: 'Apple Inc',
@@ -220,24 +205,20 @@ describe('DashboardService', () => {
         preco_medio: 100.0,
       });
 
-      // Test that stub resolver returns expected values
       expect(quoteResolver.resolve('AAPL')).toBeNull();
       
       quoteResolver.setPrice('AAPL', 150.0);
       expect(quoteResolver.resolve('AAPL')).toBe(150.0);
       
-      // Dashboard should use the resolved price
       const data = service.getDashboardData();
-      expect(data.summary.totalValue).toBe(7500); // 50 * 150
-      expect(data.summary.totalInvested).toBe(5000); // 50 * 100
+      expect(data.summary.totalValue).toBe(7500);
+      expect(data.summary.totalInvested).toBe(5000);
     });
 
     it('should isolate tests by clearing stub resolver between tests', () => {
-      // Set a price in this test
       quoteResolver.setPrice('TEST', 100.0);
       expect(quoteResolver.resolve('TEST')).toBe(100.0);
       
-      // Clear and verify it's gone
       quoteResolver.clear();
       expect(quoteResolver.resolve('TEST')).toBeNull();
     });

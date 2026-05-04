@@ -1,43 +1,19 @@
 import { Operacao, GanhoPerda } from '../types';
 
-/**
- * Unified position snapshot returned by CarteiraCalculator.
- * Contains all calculated values for a position in a single object.
- */
 export interface PositionSnapshot {
-  /** Current quantity of shares */
   quantidade: number;
-  /** Average purchase price */
   precoMedio: number;
-  /** Total invested value (quantidade * precoMedio) */
   valorInvestido: number;
-  /** Current market value (quantidade * precoAtual) */
   valorAtual: number;
-  /** Gain/loss with value and percentage */
   ganhoPerda: GanhoPerda;
-  /** Percentage of portfolio (only when total portfolio value is provided) */
   percentualCarteira: number;
 }
 
 /**
- * Deep module for calculating position values.
- * 
- * This module consolidates all Preço Médio, Ganho/Perda, and Valor Investido
- * math into a single place. It replaces scattered calculations in PositionModule,
- * DashboardService, and position-helpers.
- * 
- * The interface accepts a list of Operações and returns a complete, consistent
- * snapshot of a Posição.
+ * Calculates position values (quantity, average price, invested value,
+ * current value, gain/loss) from a list of operations.
  */
 export class CarteiraCalculator {
-  /**
-   * Calculate a complete position snapshot from a list of operations.
-   * 
-   * @param operations - List of buy/sell operations
-   * @param precoAtual - Optional current market price (if not provided, precoMedio is used)
-   * @param totalPortfolioValue - Optional total portfolio value for percentage calculation
-   * @returns A complete PositionSnapshot with all calculated values
-   */
   static calculateSnapshot(
     operations: Operacao[],
     precoAtual?: number | null,
@@ -46,13 +22,9 @@ export class CarteiraCalculator {
     const quantidade = this.calculateQuantity(operations);
     const precoMedio = this.calculateAveragePrice(operations);
     const valorInvestido = quantidade * precoMedio;
-    
-    // Use precoAtual if provided, otherwise fall back to precoMedio
     const effectivePrecoAtual = precoAtual ?? precoMedio;
     const valorAtual = quantidade * effectivePrecoAtual;
-    
     const ganhoPerda = this.calculateGainLoss(valorInvestido, valorAtual);
-    
     const percentualCarteira = totalPortfolioValue && totalPortfolioValue > 0
       ? (valorAtual / totalPortfolioValue) * 100
       : 0;
@@ -70,10 +42,6 @@ export class CarteiraCalculator {
     };
   }
 
-  /**
-   * Calculate current quantity from operations.
-   * Buys increase quantity, sells decrease it. Never goes below zero.
-   */
   private static calculateQuantity(operations: Operacao[]): number {
     if (!operations?.length) {
       return 0;
@@ -93,10 +61,6 @@ export class CarteiraCalculator {
     }, 0);
   }
 
-  /**
-   * Calculate average price using weighted average of buy operations.
-   * Sell operations reduce quantity and recalculate total cost.
-   */
   private static calculateAveragePrice(operations: Operacao[]): number {
     if (!operations?.length) {
       return 0;
@@ -120,7 +84,6 @@ export class CarteiraCalculator {
           quantity = 0;
           totalCost = 0;
         } else {
-          // Recalculate total cost based on remaining quantity and current average
           const currentAvg = totalCost / (quantity + op.quantidade);
           totalCost = quantity * currentAvg;
         }
@@ -130,9 +93,6 @@ export class CarteiraCalculator {
     return quantity > 0 ? totalCost / quantity : 0;
   }
 
-  /**
-   * Calculate gain/loss from invested and current values.
-   */
   private static calculateGainLoss(
     valorInvestido: number,
     valorAtual: number
@@ -147,9 +107,6 @@ export class CarteiraCalculator {
     return { valor, percentual };
   }
 
-  /**
-   * Round a number to two decimal places.
-   */
   private static roundToTwoDecimals(value: number): number {
     return Number(value.toFixed(2));
   }
