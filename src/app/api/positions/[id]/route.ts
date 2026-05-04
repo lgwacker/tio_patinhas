@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule } from '@/lib/database';
+import { getPositionModule, getQuoteService } from '@/lib/database';
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +16,18 @@ export async function GET(
     }
 
     const positionModule = getPositionModule();
-    const result = positionModule.getPositionWithCalculations(id, 0);
+    const quoteService = getQuoteService();
+
+    const position = positionModule.getPositionById(id);
+    if (!position) {
+      return NextResponse.json(
+        { error: 'Posição não encontrada' },
+        { status: 404 }
+      );
+    }
+
+    const currentPrice = await quoteService.fetchPrice(position.ticker) ?? 0;
+    const result = positionModule.getPositionWithCalculations(id, currentPrice);
 
     if (!result) {
       return NextResponse.json(
