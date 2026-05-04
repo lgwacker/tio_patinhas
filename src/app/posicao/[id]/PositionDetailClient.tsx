@@ -17,6 +17,7 @@ interface PositionDetailClientProps {
     ganhoValor: number;
     ganhoPercentual: number;
     precoAtual: number;
+    precoAtualDisponivel: boolean;
   };
   operations: Operation[];
 }
@@ -270,15 +271,28 @@ export function PositionDetailClient({ position, operations: initialOperations }
             </div>
             <div>
               <p className="text-sm text-text-secondary mb-1">Ganho/Perda</p>
-              <div className={`flex items-center gap-2 ${profitLossClasses}`}>
-                {isProfit ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
-                <span className="text-2xl font-bold">
-                  {formatCurrency(position.ganhoValor)}
-                </span>
-              </div>
-              <p className={`text-sm ${profitLossClasses}`}>
-                {ganhoSign}{position.ganhoPercentual.toFixed(2)}%
-              </p>
+              {position.precoAtualDisponivel ? (
+                <>
+                  <div className={`flex items-center gap-2 ${profitLossClasses}`}>
+                    {isProfit ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+                    <span className="text-2xl font-bold">
+                      {formatCurrency(position.ganhoValor)}
+                    </span>
+                  </div>
+                  <p className={`text-sm ${profitLossClasses}`}>
+                    {ganhoSign}{position.ganhoPercentual.toFixed(2)}%
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2 text-text-secondary">
+                    <span className="text-2xl font-bold">—</span>
+                  </div>
+                  <p className="text-sm text-text-secondary">
+                    Preço não disponível
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </CardContent>

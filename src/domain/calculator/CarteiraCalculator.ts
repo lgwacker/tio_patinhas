@@ -8,6 +8,7 @@ export interface PositionSnapshot {
   valorAtual: number;
   ganhoPerda: GanhoPerda;
   percentualCarteira: number;
+  precoAtualDisponivel: boolean;
 }
 
 /**
@@ -23,9 +24,19 @@ export class CarteiraCalculator {
     const quantidade = this.calculateQuantity(operations);
     const precoMedio = this.calculateAveragePrice(operations);
     const valorInvestido = quantidade * precoMedio;
-    const effectivePrecoAtual = precoAtual ?? precoMedio;
+
+    // Issue #52: When precoAtual is 0, it means "quote unavailable" not "price is 0"
+    // Only calculate gain/loss when we have a valid quote (precoAtual > 0)
+    // When precoAtual is null/undefined, use precoMedio as fallback (neutral state)
+    const precoAtualDisponivel = precoAtual !== null && precoAtual !== undefined && precoAtual > 0;
+    const effectivePrecoAtual = precoAtualDisponivel ? precoAtual! : precoMedio;
     const valorAtual = quantidade * effectivePrecoAtual;
-    const ganhoPerda = this.calculateGainLoss(valorInvestido, valorAtual);
+
+    // Only calculate gain/loss when we have a valid market quote
+    const ganhoPerda = precoAtualDisponivel
+      ? this.calculateGainLoss(valorInvestido, valorAtual)
+      : { valor: 0, percentual: 0 };
+
     const percentualCarteira = totalPortfolioValue && totalPortfolioValue > 0
       ? (valorAtual / totalPortfolioValue) * 100
       : 0;
@@ -40,6 +51,7 @@ export class CarteiraCalculator {
         percentual: this.roundToTwoDecimals(ganhoPerda.percentual),
       },
       percentualCarteira: this.roundToTwoDecimals(percentualCarteira),
+      precoAtualDisponivel,
     };
   }
 

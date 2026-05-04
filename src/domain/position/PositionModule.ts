@@ -218,6 +218,7 @@ export class PositionModule {
     ganhoValor: number;
     ganhoPercentual: number;
     precoAtual: number;
+    precoAtualDisponivel: boolean;
   } | null {
     const positionWithOps = this.getPositionWithOperations(positionId);
     if (!positionWithOps) return null;
@@ -235,6 +236,7 @@ export class PositionModule {
       ganhoValor: snapshot.ganhoPerda.valor,
       ganhoPercentual: snapshot.ganhoPerda.percentual,
       precoAtual,
+      precoAtualDisponivel: snapshot.precoAtualDisponivel,
     };
   }
 }

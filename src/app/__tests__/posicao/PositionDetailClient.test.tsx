@@ -16,6 +16,7 @@ describe('PositionDetailClient Accessibility', () => {
     ganhoValor: number;
     ganhoPercentual: number;
     precoAtual: number;
+    precoAtualDisponivel: boolean;
   } = {
     id: 1,
     ticker: 'PETR4',
@@ -32,6 +33,7 @@ describe('PositionDetailClient Accessibility', () => {
     ganhoValor: 350,
     ganhoPercentual: 12.28,
     precoAtual: 32.0,
+    precoAtualDisponivel: true,
   };
 
   const mockOperations: Operation[] = [
@@ -99,6 +101,37 @@ describe('PositionDetailClient Accessibility', () => {
 
     const refreshButton = screen.getByRole('button', { name: 'Atualizar preço' });
     expect(refreshButton).toBeInTheDocument();
+  });
+
+  it('should show unavailable price message when quote is not available (Issue #52)', () => {
+    const positionWithoutQuote = { ...mockPosition, precoAtual: 0, precoAtualDisponivel: false };
+
+    renderComponent({ position: positionWithoutQuote });
+
+    // Should show "Preço não disponível" message in the Ganho/Perda section
+    // There are multiple "—" on the page (Preço Atual and Ganho/Perda), so we look for the message
+    const ganhoPerdaSection = screen.getByText('Ganho/Perda').closest('div');
+    expect(ganhoPerdaSection).toHaveTextContent('Preço não disponível');
+  });
+
+  it('should NOT show -100% loss when quote is unavailable (Issue #52)', () => {
+    const positionWithoutQuote = { 
+      ...mockPosition, 
+      precoAtual: 0, 
+      precoAtualDisponivel: false,
+      ganhoValor: 0,
+      ganhoPercentual: 0,
+    };
+
+    renderComponent({ position: positionWithoutQuote });
+
+    // Should NOT show -100.00% 
+    const lossPercentage = screen.queryByText(/-100.00%/);
+    expect(lossPercentage).not.toBeInTheDocument();
+    
+    // Should NOT show the invested value as a loss
+    const lossValue = screen.queryByText('-R$ 2.850,00');
+    expect(lossValue).not.toBeInTheDocument();
   });
 
   describe('Nova Operação form', () => {

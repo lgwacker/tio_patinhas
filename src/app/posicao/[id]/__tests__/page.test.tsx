@@ -33,6 +33,7 @@ describe('PositionDetailClient - Heading Order Accessibility', () => {
     ganhoValor: 350,
     ganhoPercentual: 12.28,
     precoAtual: 32.0,
+    precoAtualDisponivel: true,
     // Position base fields
     classe_ativo: 'acao' as const,
     setor: 'Energia',
