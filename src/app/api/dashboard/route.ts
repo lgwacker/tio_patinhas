@@ -3,7 +3,7 @@ import Database from 'better-sqlite3';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { DashboardService } from './service';
 
-const DB_PATH = process.env.DB_PATH || './data/tio_patinhas.db';
+const DB_PATH = process.env.DATABASE_PATH || './data/tiopatinhas.db';
 
 export async function GET() {
   try {
