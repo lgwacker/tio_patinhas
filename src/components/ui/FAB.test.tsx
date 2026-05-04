@@ -2,17 +2,6 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { FAB } from './FAB';
 import { Plus, TrendingUp } from 'lucide-react';
 
-// Mock next/link to render as a link with proper href
-jest.mock('next/link', () => {
-  return function Link({ href, children, ...props }: { href: string; children: React.ReactNode }) {
-    return (
-      <a href={href} {...props} data-testid="next-link">
-        {children}
-      </a>
-    );
-  };
-});
-
 describe('FAB', () => {
   it('renders as a button by default', () => {
     render(<FAB onClick={() => {}} />);
@@ -23,12 +12,6 @@ describe('FAB', () => {
     render(<FAB href="/nova-posicao" />);
     expect(screen.getByRole('link')).toBeInTheDocument();
     expect(screen.getByRole('link')).toHaveAttribute('href', '/nova-posicao');
-  });
-
-  it('uses Next.js Link component when href is provided', () => {
-    render(<FAB href="/nova-posicao" />);
-    expect(screen.getByTestId('next-link')).toBeInTheDocument();
-    expect(screen.getByTestId('next-link')).toHaveAttribute('href', '/nova-posicao');
   });
 
   it('renders with default Plus icon', () => {

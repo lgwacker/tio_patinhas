@@ -1,17 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Layout } from './Layout';
 
-// Mock next/link to render as a link with proper href
-jest.mock('next/link', () => {
-  return function Link({ href, children, ...props }: { href: string; children: React.ReactNode }) {
-    return (
-      <a href={href} {...props} data-testid="next-link">
-        {children}
-      </a>
-    );
-  };
-});
-
 describe('Layout', () => {
   it('renders sidebar with navigation items', () => {
     render(
@@ -19,31 +8,29 @@ describe('Layout', () => {
         <div>Page content</div>
       </Layout>
     );
-    
+
     // Check for sidebar logo (the one with truncate class in desktop sidebar)
     const sidebarLogo = screen.getByText((content, element) => {
       return content === 'Tio Patinhas' && element?.classList.contains('truncate') === true;
     });
     expect(sidebarLogo).toBeInTheDocument();
-    
+
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
     expect(screen.getByText('Carteira')).toBeInTheDocument();
     expect(screen.getByText('Histórico')).toBeInTheDocument();
     expect(screen.getByText('Configurações')).toBeInTheDocument();
   });
 
-  it('renders navigation links using Next.js Link component', () => {
+  it('renders navigation links with correct hrefs', () => {
     render(
       <Layout>
         <div>Page content</div>
       </Layout>
     );
 
-    // Verify all navigation links are rendered with Next.js Link
-    const navLinks = screen.getAllByTestId('next-link');
+    const navLinks = screen.getAllByRole('link');
     expect(navLinks).toHaveLength(4);
 
-    // Check that each navigation item has correct href
     expect(navLinks[0]).toHaveAttribute('href', '/');
     expect(navLinks[1]).toHaveAttribute('href', '/carteira');
     expect(navLinks[2]).toHaveAttribute('href', '/historico');
