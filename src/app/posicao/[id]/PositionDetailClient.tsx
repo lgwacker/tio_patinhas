@@ -184,6 +184,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
                   <button
                     onClick={() => setShowManualPriceForm(!showManualPriceForm)}
                     className="text-text-secondary hover:text-primary transition-colors"
+                    aria-label="Definir preço manual"
                     title="Definir preço manual"
                   >
                     <Edit2 size={16} />
@@ -200,6 +201,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
               <button
                 onClick={handleRefreshPrice}
                 className="p-2 text-text-secondary hover:text-primary transition-colors"
+                aria-label="Atualizar preço"
                 title="Atualizar preço"
               >
                 <RefreshCw size={20} />
