@@ -11,10 +11,13 @@ export interface AssetClassOption {
  * Validation limits for numeric form inputs.
  * These prevent browser accessibility issues where empty max attributes
  * cause valuemax="0" to be inferred, contradicting min values.
+ * 
+ * IMPORTANT: All values are strings to prevent IEEE 754 floating-point
+ * precision leaks in HTML attributes (e.g., 0.01 becoming "0.009999999776482582").
  */
 export const VALIDATION_LIMITS = {
-  quantidade: { min: 1, max: 999_999_999 },
-  valorTotal: { min: 0.01, max: 999_999_999_999 },
+  quantidade: { min: '1', max: '999999999' },
+  valorTotal: { min: '0.01', max: '999999999999' },
 } as const;
 
 export const ASSET_CLASSES: AssetClassOption[] = [
