@@ -84,6 +84,19 @@ export class MigrationRunner {
           `);
         },
       },
+      {
+        name: '004_create_quotes_table',
+        up: (db) => {
+          db.exec(`
+            CREATE TABLE IF NOT EXISTS quotes (
+              ticker TEXT PRIMARY KEY,
+              preco REAL NOT NULL,
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+          `);
+          db.exec('CREATE INDEX IF NOT EXISTS idx_quotes_ticker ON quotes(ticker)');
+        },
+      },
     ];
   }
 }

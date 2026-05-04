@@ -138,6 +138,29 @@ export class DatabaseModule {
     return rows.map(this.mapOperation);
   }
 
+  getRecentOperations(limit: number = 5): Array<Operation & { ticker: string; nome: string }> {
+    const rows = this.db.prepare(`
+      SELECT o.*, p.ticker, p.nome
+      FROM operations o
+      JOIN positions p ON o.position_id = p.id
+      ORDER BY o.data DESC, o.id DESC
+      LIMIT ?
+    `).all(limit) as Record<string, unknown>[];
+    
+    return rows.map(row => ({
+      id: row.id as number,
+      position_id: row.position_id as number,
+      tipo: row.tipo as 'compra' | 'venda',
+      data: row.data as string,
+      quantidade: row.quantidade as number,
+      valor_total: row.valor_total as number,
+      preco_unitario: row.preco_unitario as number,
+      created_at: row.created_at as string,
+      ticker: row.ticker as string,
+      nome: row.nome as string,
+    }));
+  }
+
   deleteOperation(id: number): boolean {
     const result = this.db.prepare('DELETE FROM operations WHERE id = ?').run(id);
     return result.changes > 0;
