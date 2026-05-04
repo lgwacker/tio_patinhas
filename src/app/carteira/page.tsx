@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/Button';
 import { Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { getDatabaseModule } from '@/lib/database';
-import { formatCurrency } from '@/lib/formatters';
+import { formatCurrency, formatAssetClassLabel } from '@/lib/formatters';
 
 export const dynamic = 'force-dynamic';
 
@@ -59,7 +59,7 @@ export default function CarteiraPage() {
                         <div className="flex items-center gap-3">
                           <h3 className="text-lg font-bold text-text-primary">{position.ticker}</h3>
                           <span className="text-xs px-2 py-1 bg-primary/20 text-primary rounded">
-                            {position.classe_ativo}
+                            {formatAssetClassLabel(position.classe_ativo)}
                           </span>
                         </div>
                         <p className="text-text-secondary text-sm">{position.nome}</p>

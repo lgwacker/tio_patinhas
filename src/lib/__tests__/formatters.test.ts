@@ -3,7 +3,9 @@ import {
   formatPercentage,
   formatPercentageAbsolute,
   formatQuantity,
+  formatAssetClassLabel,
 } from '@/lib/formatters';
+import type { AssetClass } from '@/lib/constants';
 
 describe('formatters', () => {
   describe('formatCurrency', () => {
@@ -62,6 +64,32 @@ describe('formatters', () => {
 
     it('should format quantity without decimals', () => {
       expect(formatQuantity(100.75)).toBe('101');
+    });
+  });
+
+  describe('formatAssetClassLabel', () => {
+    it('formats acao to Ação', () => {
+      expect(formatAssetClassLabel('acao')).toBe('Ação');
+    });
+
+    it('formats fii to Fundo Imobiliário (FII)', () => {
+      expect(formatAssetClassLabel('fii')).toBe('Fundo Imobiliário (FII)');
+    });
+
+    it('formats renda_fixa to Renda Fixa', () => {
+      expect(formatAssetClassLabel('renda_fixa')).toBe('Renda Fixa');
+    });
+
+    it('formats etf to ETF', () => {
+      expect(formatAssetClassLabel('etf')).toBe('ETF');
+    });
+
+    it('formats cripto to Criptomoeda', () => {
+      expect(formatAssetClassLabel('cripto')).toBe('Criptomoeda');
+    });
+
+    it('returns raw value for unknown asset class', () => {
+      expect(formatAssetClassLabel('unknown' as AssetClass)).toBe('unknown');
     });
   });
 });
