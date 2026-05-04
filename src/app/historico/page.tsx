@@ -1,21 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { getDatabaseModule } from '@/lib/database';
+import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
 
 export default function HistoricoPage() {
   const dbModule = getDatabaseModule();
   const operations = dbModule.getAllOperations();
   const positions = dbModule.getAllPositions();
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR');
-  };
 
   return (
     <div className="space-y-6">
@@ -54,11 +45,7 @@ export default function HistoricoPage() {
                         <td className="py-3 px-4 text-text-primary">{formatDate(op.data)}</td>
                         <td className="py-3 px-4 text-text-primary">{position?.ticker || '---'}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                            op.tipo === 'compra' 
-                              ? 'bg-green-900/30 text-green-400' 
-                              : 'bg-red-900/30 text-red-400'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
                             {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                           </span>
                         </td>

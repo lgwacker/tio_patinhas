@@ -1,40 +1,22 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign } from 'lucide-react';
 import Link from 'next/link';
-
-interface Operation {
-  id: number;
-  position_id: number;
-  tipo: 'compra' | 'venda';
-  data: string;
-  quantidade: number;
-  valor_total: number;
-  preco_unitario: number;
-  created_at: string;
-}
-
-interface Position {
-  id: number;
-  ticker: string;
-  nome: string;
-  classe_ativo: string;
-  setor: string | null;
-  segmento: string | null;
-  quantidade: number;
-  preco_medio: number;
-  valorInvestido: number;
-  valorAtual: number;
-  ganhoValor: number;
-  ganhoPercentual: number;
-  precoAtual: number;
-}
+import { formatCurrency, formatDate, calcularPrecoUnitario } from '@/lib/formatters';
+import { getOperationTypeBadgeClasses, getProfitLossColorClasses } from '@/lib/ui-helpers';
+import type { Position, Operation } from '@/types';
 
 interface PositionDetailClientProps {
-  position: Position;
+  position: Position & {
+    valorInvestido: number;
+    valorAtual: number;
+    ganhoValor: number;
+    ganhoPercentual: number;
+    precoAtual: number;
+  };
   operations: Operation[];
 }
 
@@ -50,14 +32,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const calcularPrecoUnitario = useCallback(() => {
-    const quantidade = parseInt(formData.quantidade, 10);
-    const valorTotal = parseFloat(formData.valor_total);
-    if (quantidade > 0 && valorTotal > 0) {
-      return (valorTotal / quantidade).toFixed(2);
-    }
-    return '--';
-  }, [formData.quantidade, formData.valor_total]);
+  const precoUnitario = calcularPrecoUnitario(formData.quantidade, formData.valor_total);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,18 +85,9 @@ export function PositionDetailClient({ position, operations: initialOperations }
     }
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR');
-  };
-
   const isProfit = position.ganhoValor >= 0;
+  const profitLossClasses = getProfitLossColorClasses(isProfit);
+  const ganhoSign = isProfit ? '+' : '';
 
   return (
     <div className="space-y-6">
@@ -166,14 +132,14 @@ export function PositionDetailClient({ position, operations: initialOperations }
             </div>
             <div>
               <p className="text-sm text-text-secondary mb-1">Ganho/Perda</p>
-              <div className={`flex items-center gap-2 ${isProfit ? 'text-profit' : 'text-loss'}`}>
+              <div className={`flex items-center gap-2 ${profitLossClasses}`}>
                 {isProfit ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
                 <span className="text-2xl font-bold">
                   {formatCurrency(position.ganhoValor)}
                 </span>
               </div>
-              <p className={`text-sm ${isProfit ? 'text-profit' : 'text-loss'}`}>
-                {isProfit ? '+' : ''}{position.ganhoPercentual.toFixed(2)}%
+              <p className={`text-sm ${profitLossClasses}`}>
+                {ganhoSign}{position.ganhoPercentual.toFixed(2)}%
               </p>
             </div>
           </div>
@@ -262,7 +228,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
                     Preço Unitário (Preview)
                   </label>
                   <div className="px-3 py-2 bg-surface border border-border rounded-md text-text-primary">
-                    {formatCurrency(parseFloat(calcularPrecoUnitario()) || 0)}
+                    {formatCurrency(parseFloat(precoUnitario) || 0)}
                   </div>
                 </div>
               </div>
@@ -306,11 +272,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
                     <tr key={op.id} className="border-b border-border last:border-0">
                       <td className="py-3 px-4 text-text-primary">{formatDate(op.data)}</td>
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                          op.tipo === 'compra' 
-                            ? 'bg-green-900/30 text-green-400' 
-                            : 'bg-red-900/30 text-red-400'
-                        }`}>
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
                           {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                         </span>
                       </td>

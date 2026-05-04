@@ -3,22 +3,15 @@ import { Button } from '@/components/ui/Button';
 import { Wallet, TrendingUp, History, ArrowRight, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { getDatabaseModule } from '@/lib/database';
+import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
+
+const RECENT_OPERATIONS_LIMIT = 5;
 
 export default function DashboardPage() {
   const dbModule = getDatabaseModule();
   const positions = dbModule.getAllPositions();
-  const operations = dbModule.getAllOperations().slice(0, 5); // Last 5 operations
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
-
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('pt-BR');
-  };
+  const operations = dbModule.getAllOperations().slice(0, RECENT_OPERATIONS_LIMIT);
 
   const totalInvestido = positions.reduce((acc, pos) => acc + (pos.quantidade * pos.preco_medio), 0);
 
@@ -128,11 +121,7 @@ export default function DashboardPage() {
                           </Link>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                            op.tipo === 'compra' 
-                              ? 'bg-green-900/30 text-green-400' 
-                              : 'bg-red-900/30 text-red-400'
-                          }`}>
+                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
                             {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                           </span>
                         </td>

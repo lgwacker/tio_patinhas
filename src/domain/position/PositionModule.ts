@@ -1,6 +1,7 @@
 import { Operacao, Posicao, TipoOperacao } from '../types';
 import { calculateAveragePrice } from '../calculator';
 import { DatabaseModule } from '@/data/DatabaseModule';
+import { VALID_ASSET_CLASSES } from '@/lib/constants';
 import type { CreateOperationInput, Operation, Position, CreatePositionInput } from '@/types';
 
 export interface ValidationError {
@@ -64,8 +65,7 @@ export class PositionModule {
       errors.push({ field: 'nome', message: 'Nome é obrigatório' });
     }
 
-    const validClasses = ['acao', 'fii', 'renda_fixa', 'etf', 'cripto'];
-    if (!classe_ativo || !validClasses.includes(classe_ativo)) {
+    if (!classe_ativo || !VALID_ASSET_CLASSES.includes(classe_ativo as typeof VALID_ASSET_CLASSES[number])) {
       errors.push({ field: 'classe_ativo', message: 'Classe de ativo inválida' });
     }
 
@@ -204,6 +204,7 @@ export class PositionModule {
     valorAtual: number;
     ganhoValor: number;
     ganhoPercentual: number;
+    precoAtual: number;
   } | null {
     const positionWithOps = this.getPositionWithOperations(positionId);
     if (!positionWithOps) return null;
@@ -219,6 +220,7 @@ export class PositionModule {
       valorAtual: Number(valorAtual.toFixed(2)),
       ganhoValor: Number(ganhoValor.toFixed(2)),
       ganhoPercentual: Number(ganhoPercentual.toFixed(2)),
+      precoAtual,
     };
   }
 }

@@ -6,14 +6,8 @@ import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Plus, Calendar, DollarSign, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-
-const assetClasses = [
-  { value: 'acao', label: 'Ação' },
-  { value: 'fii', label: 'Fundo Imobiliário (FII)' },
-  { value: 'renda_fixa', label: 'Renda Fixa' },
-  { value: 'etf', label: 'ETF' },
-  { value: 'cripto', label: 'Criptomoeda' },
-];
+import { formatCurrency, calcularPrecoUnitario } from '@/lib/formatters';
+import { ASSET_CLASSES } from '@/lib/constants';
 
 export default function NovaPosicaoPage() {
   const router = useRouter();
@@ -32,21 +26,7 @@ export default function NovaPosicaoPage() {
     valor_total: '',
   });
 
-  const calcularPrecoUnitario = () => {
-    const quantidade = parseInt(formData.quantidade, 10);
-    const valorTotal = parseFloat(formData.valor_total);
-    if (quantidade > 0 && valorTotal > 0) {
-      return (valorTotal / quantidade).toFixed(2);
-    }
-    return '--';
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(value);
-  };
+  const precoUnitario = calcularPrecoUnitario(formData.quantidade, formData.valor_total);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -148,7 +128,7 @@ export default function NovaPosicaoPage() {
                   onChange={(e) => setFormData({ ...formData, classe_ativo: e.target.value as typeof formData.classe_ativo })}
                   className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 >
-                  {assetClasses.map((cls) => (
+                  {ASSET_CLASSES.map((cls) => (
                     <option key={cls.value} value={cls.value}>{cls.label}</option>
                   ))}
                 </select>
@@ -268,11 +248,11 @@ export default function NovaPosicaoPage() {
                     Preço Unitário (Preview)
                   </label>
                   <div className="px-3 py-2 bg-surface border border-border rounded-md text-text-primary">
-                    {formatCurrency(parseFloat(calcularPrecoUnitario()) || 0)}
+                    {formatCurrency(parseFloat(precoUnitario) || 0)}
                   </div>
                   <p className="text-xs text-text-secondary mt-1">
                     {formData.quantidade && formData.valor_total
-                      ? `${calcularPrecoUnitario()} por unidade`
+                      ? `${precoUnitario} por unidade`
                       : 'Preencha quantidade e valor'}
                   </p>
                 </div>
