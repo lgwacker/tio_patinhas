@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Plus } from 'lucide-react';
 
 interface FABProps {
@@ -45,9 +46,9 @@ export function FAB({
 
   if (href) {
     return (
-      <a href={href} className={combinedClasses} aria-label={label}>
+      <Link href={href} className={combinedClasses} aria-label={label}>
         {content}
-      </a>
+      </Link>
     );
   }
 

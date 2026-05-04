@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   LayoutDashboard, 
   Wallet, 
@@ -93,7 +94,7 @@ export function Layout({
               const linkClasses = `flex items-center gap-3 px-3 py-2.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-border transition-colors group ${isCollapsed ? 'justify-center' : ''}`;
               
               return (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className={linkClasses}
@@ -103,7 +104,7 @@ export function Layout({
                   {!isCollapsed && (
                     <span className="text-sm font-medium">{item.name}</span>
                   )}
-                </a>
+                </Link>
               );
             })}
           </nav>
