@@ -151,6 +151,33 @@ export function PositionDetailClient({ position, operations: initialOperations }
   const profitLossClasses = isProfit ? 'text-profit' : 'text-loss';
   const ganhoSign = isProfit ? '+' : '';
 
+  function GanhoPerdaDisplay() {
+    if (!position.precoAtualDisponivel) {
+      return (
+        <>
+          <div className="flex items-center gap-2 text-text-secondary">
+            <span className="text-2xl font-bold">—</span>
+          </div>
+          <p className="text-sm text-text-secondary">Preço não disponível</p>
+        </>
+      );
+    }
+
+    return (
+      <>
+        <div className={`flex items-center gap-2 ${profitLossClasses}`}>
+          {isProfit ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
+          <span className="text-2xl font-bold">
+            {formatCurrency(position.ganhoValor)}
+          </span>
+        </div>
+        <p className={`text-sm ${profitLossClasses}`}>
+          {ganhoSign}{position.ganhoPercentual.toFixed(2)}%
+        </p>
+      </>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -271,28 +298,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
             </div>
             <div>
               <p className="text-sm text-text-secondary mb-1">Ganho/Perda</p>
-              {position.precoAtualDisponivel ? (
-                <>
-                  <div className={`flex items-center gap-2 ${profitLossClasses}`}>
-                    {isProfit ? <TrendingUp size={20} /> : <TrendingDown size={20} />}
-                    <span className="text-2xl font-bold">
-                      {formatCurrency(position.ganhoValor)}
-                    </span>
-                  </div>
-                  <p className={`text-sm ${profitLossClasses}`}>
-                    {ganhoSign}{position.ganhoPercentual.toFixed(2)}%
-                  </p>
-                </>
-              ) : (
-                <>
-                  <div className="flex items-center gap-2 text-text-secondary">
-                    <span className="text-2xl font-bold">—</span>
-                  </div>
-                  <p className="text-sm text-text-secondary">
-                    Preço não disponível
-                  </p>
-                </>
-              )}
+              <GanhoPerdaDisplay />
             </div>
           </div>
         </CardContent>
