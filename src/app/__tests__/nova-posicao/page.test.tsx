@@ -154,6 +154,25 @@ describe('NovaPosicaoPage Accessibility', () => {
       const minValue = parseFloat(input.getAttribute('min') || '0');
       expect(maxValue).toBeGreaterThanOrEqual(minValue);
     });
+
+    it('should have min attributes without floating-point precision leaks', () => {
+      render(<NovaPosicaoPage />);
+
+      const quantidadeInput = screen.getByLabelText('Quantidade');
+      const valorTotalInput = screen.getByLabelText(/Valor Total/);
+
+      // Verify no IEEE 754 precision issues like "0.009999999776482582"
+      const quantidadeMin = quantidadeInput.getAttribute('min');
+      const valorTotalMin = valorTotalInput.getAttribute('min');
+
+      // These should be clean string values, not floating-point artifacts
+      expect(quantidadeMin).toBe('1');
+      expect(valorTotalMin).toBe('0.01');
+
+      // Verify no long decimal sequences that indicate precision leaks
+      expect(quantidadeMin).not.toMatch(/\.\d{3,}/);
+      expect(valorTotalMin).not.toMatch(/\.\d{3,}/);
+    });
   });
 
   describe('Heading hierarchy', () => {
