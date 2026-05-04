@@ -3,6 +3,7 @@ import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { PositionModule } from '@/domain/position/PositionModule';
 import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
+import { QuotesService } from '@/domain/quotes/QuotesService';
 import { createDatabase } from '@/lib/database-helpers';
 import type { Position } from '@/types';
 
@@ -23,14 +24,42 @@ function getAllQuotes(db: Database.Database): Record<string, number> {
   return quotes;
 }
 
+/**
+ * Fetch fresh quotes for all positions to ensure consistent values (Issue #48)
+ * This ensures Carteira shows the same values as Position Detail
+ */
+async function fetchFreshQuotes(
+  positions: Position[],
+  quotesService: QuotesService
+): Promise<Record<string, number>> {
+  await Promise.all(
+    positions.map(async (position) => {
+      await quotesService.fetchPrice(position.ticker);
+    })
+  );
+
+  // Return all quotes (now fresh from the cache after fetching)
+  const quotes: Record<string, number> = {};
+  for (const position of positions) {
+    const price = quotesService.resolve(position.ticker);
+    if (price !== null) {
+      quotes[position.ticker] = price;
+    }
+  }
+  return quotes;
+}
+
 export async function GET() {
   try {
     const db = createDatabase();
     const dbModule = new DatabaseModule(db);
     const positionModule = new PositionModule(dbModule);
+    const quotesService = new QuotesService(db, { cacheTtlMinutes: 15 });
 
     const positions: Position[] = positionModule.getAllPositions();
-    const quotes = getAllQuotes(db);
+    
+    // Fetch fresh quotes for consistent values (Issue #48)
+    const quotes = await fetchFreshQuotes(positions, quotesService);
     const positionsWithValues = CarteiraCalculator.enrichPositions(positions, quotes);
 
     return NextResponse.json({ positions: positionsWithValues });

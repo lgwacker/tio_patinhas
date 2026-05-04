@@ -8,6 +8,15 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
     const { dataModule, quotesService } = createDashboardDependencies();
+
+    // Fetch fresh quotes for all positions to ensure consistent values (Issue #48)
+    const positions = dataModule.getAllPositions();
+    await Promise.all(
+      positions.map(async (position) => {
+        await quotesService.fetchPrice(position.ticker);
+      })
+    );
+
     const dashboardService = new DashboardService(dataModule, quotesService);
     const data = dashboardService.getDashboardData();
 
