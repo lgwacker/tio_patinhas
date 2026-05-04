@@ -105,10 +105,12 @@ export default function NovaPosicaoPage() {
             {/* Asset Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <label htmlFor="ticker" className="block text-sm font-medium text-text-secondary mb-2">
                   Ticker
                 </label>
                 <input
+                  id="ticker"
+                  name="ticker"
                   type="text"
                   value={formData.ticker}
                   onChange={(e) => setFormData({ ...formData, ticker: e.target.value.toUpperCase() })}
@@ -120,10 +122,12 @@ export default function NovaPosicaoPage() {
                 <p className="text-xs text-text-secondary mt-1">Ex: PETR4, VALE3, HGLG11</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <label htmlFor="classe_ativo" className="block text-sm font-medium text-text-secondary mb-2">
                   Classe de Ativo
                 </label>
                 <select
+                  id="classe_ativo"
+                  name="classe_ativo"
                   value={formData.classe_ativo}
                   onChange={(e) => setFormData({ ...formData, classe_ativo: e.target.value as typeof formData.classe_ativo })}
                   className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
@@ -136,10 +140,12 @@ export default function NovaPosicaoPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-2">
+              <label htmlFor="nome" className="block text-sm font-medium text-text-secondary mb-2">
                 Nome do Ativo
               </label>
               <input
+                id="nome"
+                name="nome"
                 type="text"
                 value={formData.nome}
                 onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
@@ -151,10 +157,12 @@ export default function NovaPosicaoPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <label htmlFor="setor" className="block text-sm font-medium text-text-secondary mb-2">
                   Setor (opcional)
                 </label>
                 <input
+                  id="setor"
+                  name="setor"
                   type="text"
                   value={formData.setor}
                   onChange={(e) => setFormData({ ...formData, setor: e.target.value })}
@@ -163,10 +171,12 @@ export default function NovaPosicaoPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-text-secondary mb-2">
+                <label htmlFor="segmento" className="block text-sm font-medium text-text-secondary mb-2">
                   Segmento (opcional)
                 </label>
                 <input
+                  id="segmento"
+                  name="segmento"
                   type="text"
                   value={formData.segmento}
                   onChange={(e) => setFormData({ ...formData, segmento: e.target.value })}
@@ -184,10 +194,12 @@ export default function NovaPosicaoPage() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                  <label htmlFor="tipo" className="block text-sm font-medium text-text-secondary mb-2">
                     Tipo
                   </label>
                   <select
+                    id="tipo"
+                    name="tipo"
                     value={formData.tipo}
                     onChange={(e) => setFormData({ ...formData, tipo: e.target.value as 'compra' | 'venda' })}
                     className="w-full px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
@@ -197,11 +209,13 @@ export default function NovaPosicaoPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                  <label htmlFor="data" className="block text-sm font-medium text-text-secondary mb-2">
                     <Calendar size={16} className="inline mr-2" />
                     Data
                   </label>
                   <input
+                    id="data"
+                    name="data"
                     type="date"
                     value={formData.data}
                     onChange={(e) => setFormData({ ...formData, data: e.target.value })}
@@ -213,10 +227,12 @@ export default function NovaPosicaoPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                  <label htmlFor="quantidade" className="block text-sm font-medium text-text-secondary mb-2">
                     Quantidade
                   </label>
                   <input
+                    id="quantidade"
+                    name="quantidade"
                     type="number"
                     min="1"
                     step="1"
@@ -228,11 +244,13 @@ export default function NovaPosicaoPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-text-secondary mb-2">
+                  <label htmlFor="valor_total" className="block text-sm font-medium text-text-secondary mb-2">
                     <DollarSign size={16} className="inline mr-2" />
                     Valor Total (R$)
                   </label>
                   <input
+                    id="valor_total"
+                    name="valor_total"
                     type="number"
                     min="0.01"
                     step="0.01"
