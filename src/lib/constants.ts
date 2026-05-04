@@ -1,5 +1,9 @@
+export const VALID_ASSET_CLASSES = ['acao', 'fii', 'renda_fixa', 'etf', 'cripto'] as const;
+
+export type AssetClass = typeof VALID_ASSET_CLASSES[number];
+
 export interface AssetClassOption {
-  value: 'acao' | 'fii' | 'renda_fixa' | 'etf' | 'cripto';
+  value: AssetClass;
   label: string;
 }
 
@@ -10,7 +14,3 @@ export const ASSET_CLASSES: AssetClassOption[] = [
   { value: 'etf', label: 'ETF' },
   { value: 'cripto', label: 'Criptomoeda' },
 ];
-
-export type AssetClass = AssetClassOption['value'];
-
-export const VALID_ASSET_CLASSES = ['acao', 'fii', 'renda_fixa', 'etf', 'cripto'] as const;

@@ -1,10 +1,5 @@
 import { Operacao, Posicao, GanhoPerda, ValoresPosicao } from '../types';
 
-/**
- * Calculates the average price of a position based on its operation history.
- * Uses FIFO-like logic where sell operations reduce quantity but keep the same average price.
- * When all shares are sold, the average price resets for subsequent purchases.
- */
 export function calculateAveragePrice(operations: Operacao[]): number {
   if (!operations?.length) {
     return 0;
@@ -38,9 +33,6 @@ export function calculateAveragePrice(operations: Operacao[]): number {
   return quantity > 0 ? totalCost / quantity : 0;
 }
 
-/**
- * Calculates gain/loss for a position given current market price.
- */
 export function calculateGainLoss(position: Posicao, currentPrice: number): GanhoPerda {
   if (!position || position.quantidade <= 0 || position.precoMedio <= 0 || currentPrice < 0) {
     return { valor: 0, percentual: 0 };
@@ -57,9 +49,6 @@ export function calculateGainLoss(position: Posicao, currentPrice: number): Ganh
   };
 }
 
-/**
- * Calculates all value metrics for a position.
- */
 export function calculatePositionValue(
   quantidade: number,
   precoMedio: number,
@@ -75,11 +64,7 @@ export function calculatePositionValue(
 
   const valorInvestido = quantidade * precoMedio;
   const valorAtual = quantidade * precoAtual;
-  
-  // Use calculateGainLoss for consistent calculation
-  const ganhoPerda = precoMedio > 0 
-    ? calculateGainLoss({ ticker: '', quantidade, precoMedio: precoMedio }, precoAtual)
-    : { valor: 0, percentual: 0 };
+  const ganhoPerda = calculateGainLoss({ ticker: '', quantidade, precoMedio }, precoAtual);
 
   return {
     valorInvestido: Number(valorInvestido.toFixed(2)),

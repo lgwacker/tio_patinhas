@@ -62,27 +62,22 @@ export class DatabaseModule {
   updatePosition(id: number, input: UpdatePositionInput): Position | null {
     if (!this.getPositionById(id)) return null;
 
-    const fieldMap: Record<string, unknown> = {
+    const definedFields = Object.entries({
       nome: input.nome,
       setor: input.setor,
       segmento: input.segmento,
       quantidade: input.quantidade,
       preco_medio: input.preco_medio,
-    };
+    }).filter(([_, value]) => value !== undefined);
 
-    const updates = Object.entries(fieldMap)
-      .filter(([_, value]) => value !== undefined)
-      .map(([key]) => `${key} = ?`);
-
-    if (updates.length === 0) {
+    if (definedFields.length === 0) {
       return this.getPositionById(id);
     }
 
+    const updates = definedFields.map(([key]) => `${key} = ?`);
     updates.push('updated_at = CURRENT_TIMESTAMP');
 
-    const values = Object.entries(fieldMap)
-      .filter(([_, value]) => value !== undefined)
-      .map(([_, value]) => value);
+    const values = definedFields.map(([_, value]) => value);
     values.push(id);
 
     const query = `UPDATE positions SET ${updates.join(', ')} WHERE id = ?`;
