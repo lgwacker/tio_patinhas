@@ -1,72 +1,44 @@
 import fs from 'fs';
 import path from 'path';
 
+const DB_PATH_REGEX = /process\.env\.(\w+)\s*\|\|\s*['"`]([^'"`]+)['"`]/;
+
+function readSourceFile(relativePath: string): string {
+  return fs.readFileSync(path.join(__dirname, relativePath), 'utf-8');
+}
+
+function extractDatabasePath(fileContent: string): string | null {
+  const match = fileContent.match(DB_PATH_REGEX);
+  return match?.[2] ?? null;
+}
+
 describe('Database path consistency', () => {
-  it('should use the same database path in all modules', () => {
-    // Read the database.ts file
-    const databasePathFile = fs.readFileSync(
-      path.join(__dirname, '../../../lib/database.ts'),
-      'utf-8'
-    );
+  it('should define database path only in database.ts', () => {
+    const databasePathFile = readSourceFile('../../../lib/database.ts');
+    const dashboardRouteFile = readSourceFile('../dashboard/route.ts');
 
-    // Read the dashboard route file
-    const dashboardRouteFile = fs.readFileSync(
-      path.join(__dirname, '../dashboard/route.ts'),
-      'utf-8'
-    );
+    const databaseTsPath = extractDatabasePath(databasePathFile);
+    const dashboardRoutePath = extractDatabasePath(dashboardRouteFile);
 
-    // Extract the database path from database.ts
-    const dbPathMatch = databasePathFile.match(
-      /process\.env\.(\w+)\s*\|\|\s*['"`]([^'"`]+)['"`]/
-    );
-    expect(dbPathMatch).toBeTruthy();
-    const databaseTsPath = dbPathMatch![2];
+    expect(databaseTsPath).toBeTruthy();
+    expect(databaseTsPath).toContain('tiopatinhas.db');
+    expect(databaseTsPath).not.toContain('tio_patinhas.db');
 
-    // Extract the database path from dashboard route
-    const dashboardPathMatch = dashboardRouteFile.match(
-      /process\.env\.(\w+)\s*\|\|\s*['"`]([^'"`]+)['"`]/
-    );
-    expect(dashboardPathMatch).toBeTruthy();
-    const dashboardRoutePath = dashboardPathMatch![2];
-
-    // Both should use the same database file path
-    expect(dashboardRoutePath).toBe(databaseTsPath);
+    // Dashboard route should not define its own path - it imports from database.ts
+    expect(dashboardRoutePath).toBeNull();
   });
 
-  it('should use tiopatinhas.db without underscore', () => {
-    // Read the dashboard route file
-    const dashboardRouteFile = fs.readFileSync(
-      path.join(__dirname, '../dashboard/route.ts'),
-      'utf-8'
-    );
+  it('should use getDatabase import from lib/database in dashboard route', () => {
+    const dashboardRouteFile = readSourceFile('../dashboard/route.ts');
 
-    // Extract the database path
-    const pathMatch = dashboardRouteFile.match(
-      /process\.env\.(\w+)\s*\|\|\s*['"`]([^'"`]+)['"`]/
-    );
-    expect(pathMatch).toBeTruthy();
-    const dbPath = pathMatch![2];
-
-    // Should use 'tiopatinhas.db' (without underscore)
-    expect(dbPath).toContain('tiopatinhas.db');
-    expect(dbPath).not.toContain('tio_patinhas.db');
+    expect(dashboardRouteFile).toContain("from '@/lib/database'");
+    expect(dashboardRouteFile).toContain('getDatabase');
   });
 
-  it('should use DATABASE_PATH environment variable consistently', () => {
-    // Read the dashboard route file
-    const dashboardRouteFile = fs.readFileSync(
-      path.join(__dirname, '../dashboard/route.ts'),
-      'utf-8'
-    );
+  it('should use DATABASE_PATH environment variable in database.ts', () => {
+    const databasePathFile = readSourceFile('../../../lib/database.ts');
 
-    // Extract the environment variable name
-    const envVarMatch = dashboardRouteFile.match(
-      /process\.env\.(\w+)\s*\|\|\s*['"`]/
-    );
-    expect(envVarMatch).toBeTruthy();
-    const envVarName = envVarMatch![1];
-
-    // Should use 'DATABASE_PATH' (not 'DB_PATH')
-    expect(envVarName).toBe('DATABASE_PATH');
+    expect(databasePathFile).toContain('process.env.DATABASE_PATH');
+    expect(databasePathFile).not.toContain('process.env.DB_PATH');
   });
 });

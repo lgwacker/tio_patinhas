@@ -1,24 +1,13 @@
 import { NextResponse } from 'next/server';
-import Database from 'better-sqlite3';
-import { MigrationRunner } from '@/data/MigrationRunner';
+import { getDatabase } from '@/lib/database';
 import { DashboardService } from './service';
-
-const DB_PATH = process.env.DATABASE_PATH || './data/tiopatinhas.db';
 
 export async function GET() {
   try {
-    const db = new Database(DB_PATH);
-    
-    // Ensure migrations are run
-    const migrations = new MigrationRunner(db);
-    migrations.runMigrations();
-    
-    // Get dashboard data
+    const db = getDatabase();
     const service = new DashboardService(db);
     const data = service.getDashboardData();
-    
-    db.close();
-    
+
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching dashboard data:', error);
