@@ -107,5 +107,21 @@ describe('formatters', () => {
     it('should handle leap year dates', () => {
       expect(formatDate('2024-02-29')).toBe('29/02/2024');
     });
+
+    it('should return "--" for empty string', () => {
+      expect(formatDate('')).toBe('--');
+    });
+
+    it('should return "--" for invalid date format', () => {
+      expect(formatDate('invalid')).toBe('--');
+    });
+
+    it('should return "--" for incomplete date', () => {
+      expect(formatDate('2024-02')).toBe('--');
+    });
+
+    it('should return "--" for empty date parts', () => {
+      expect(formatDate('2024--01')).toBe('--');
+    });
   });
 });

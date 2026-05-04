@@ -40,10 +40,21 @@ export function formatQuantity(value: number): string {
 /**
  * Format date string to Brazilian format (DD/MM/YYYY)
  * Parses the date as local time to avoid UTC timezone issues
+ * Returns '--' for invalid input
  */
 export function formatDate(dateStr: string): string {
-  const [year, month, day] = dateStr.split('-').map(Number);
-  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
+  const parts = dateStr?.split('-');
+  if (parts?.length !== 3) return '--';
+
+  const [year, month, day] = parts.map(Number);
+  if (parts.some((part) => part === '' || isNaN(Number(part)))) {
+    return '--';
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (isNaN(date.getTime())) return '--';
+
+  return date.toLocaleDateString('pt-BR');
 }
 
 /**
