@@ -25,19 +25,13 @@ describe('NovaPosicaoPage Accessibility', () => {
 
   it('should have sufficient color contrast on Criar Posição button', () => {
     render(<NovaPosicaoPage />);
-    
-    // Get the primary button (Criar Posição)
+
     const submitButton = screen.getByRole('button', { name: /Criar Posição/i });
     expect(submitButton).toBeInTheDocument();
-    
-    // Check that the button uses a dark enough primary color
-    // bg-primary should map to a color with at least 4.5:1 contrast with white text
+
+    // Verify WCAG-compliant color contrast: bg-primary provides 4.5:1+ contrast with text-white
     const buttonClasses = submitButton.className;
-    
-    // The button should have bg-primary class
     expect(buttonClasses).toContain('bg-primary');
-    
-    // Verify the button also has text-white for proper contrast
     expect(buttonClasses).toContain('text-white');
   });
 
