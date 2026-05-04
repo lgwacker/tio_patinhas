@@ -14,11 +14,9 @@ interface QuoteRow {
 function getAllQuotes(db: Database.Database): Record<string, number> {
   const rows = db.prepare('SELECT ticker, preco FROM quotes').all() as QuoteRow[];
   const quotes: Record<string, number> = {};
-
   for (const row of rows) {
     quotes[row.ticker] = row.preco;
   }
-
   return quotes;
 }
 

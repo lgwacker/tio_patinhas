@@ -1,14 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DatabaseModule } from '@/data/DatabaseModule';
-import { PositionModule, PositionValidationError } from '@/domain/position/PositionModule';
-import { createDatabase } from '@/lib/database-helpers';
+import { PositionValidationError } from '@/domain/position/PositionModule';
+import { createPositionModule } from '@/lib/composition-helpers';
 import type { CreateOperationInput } from '@/types';
-
-function createPositionModule(): PositionModule {
-  const db = createDatabase();
-  const dbModule = new DatabaseModule(db);
-  return new PositionModule(dbModule);
-}
 
 export async function GET() {
   try {

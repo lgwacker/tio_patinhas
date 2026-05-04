@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { DatabaseModule } from '@/data/DatabaseModule';
-import { createDatabase } from '@/lib/database-helpers';
+import { createHistoricoDependencies } from '@/lib/composition-helpers';
 
 export async function GET() {
   try {
-    const db = createDatabase();
-    const dbModule = new DatabaseModule(db);
+    const { dbModule } = createHistoricoDependencies();
     const operations = dbModule.getAllOperations();
     const positions = dbModule.getAllPositions();
 

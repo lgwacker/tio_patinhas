@@ -1,19 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DatabaseModule } from '@/data/DatabaseModule';
-import { PositionModule } from '@/domain/position/PositionModule';
-import { QuotesService } from '@/domain/quotes';
-import { createDatabase } from '@/lib/database-helpers';
-
-function createPositionModule(): PositionModule {
-  const db = createDatabase();
-  const dbModule = new DatabaseModule(db);
-  return new PositionModule(dbModule);
-}
-
-function createQuotesService(): QuotesService {
-  const db = createDatabase();
-  return new QuotesService(db, { cacheTtlMinutes: 15 });
-}
+import { createPositionModule, createQuotesService } from '@/lib/composition-helpers';
 
 export async function GET(
   request: NextRequest,

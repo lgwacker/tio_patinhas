@@ -1,11 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { QuotesService } from '@/domain/quotes';
-import { createDatabase } from '@/lib/database-helpers';
-
-function createQuotesService(): QuotesService {
-  const db = createDatabase();
-  return new QuotesService(db, { cacheTtlMinutes: 15 });
-}
+import { createQuotesService } from '@/lib/composition-helpers';
 
 export async function GET(
   request: NextRequest,
