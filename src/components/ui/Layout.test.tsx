@@ -38,8 +38,8 @@ describe('Layout', () => {
       </Layout>
     );
     
-    const toggleButton = screen.getByLabelText('Toggle sidebar');
-    fireEvent.click(toggleButton);
+    const collapseButton = screen.getByLabelText('Collapse sidebar');
+    fireEvent.click(collapseButton);
     
     // After collapsing, text labels should be hidden
     // The sidebar aside element should have w-16 class
