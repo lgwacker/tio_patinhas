@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CarteiraPage from '@/app/carteira/page';
-import type { Position } from '@/types';
+import type { PositionWithValues } from '@/lib/carteira-types';
 
 // Mock next/link
 jest.mock('next/link', () => {
@@ -9,7 +9,8 @@ jest.mock('next/link', () => {
   };
 });
 
-const mockPositions: Position[] = [
+// Mock positions with calculated values (as returned by /api/positions/with-quotes)
+const mockPositions: PositionWithValues[] = [
   {
     id: 1,
     ticker: 'PETR4',
@@ -21,6 +22,13 @@ const mockPositions: Position[] = [
     preco_medio: 25.5,
     data_criacao: '2024-01-15',
     updated_at: '2024-01-15',
+    // Calculated values (from API with market prices)
+    preco_atual: 30.0, // Market price is higher than preco_medio
+    valor_investido: 2550.00,
+    valor_atual: 3000.00,
+    ganho_valor: 450.00,
+    ganho_percentual: 17.65,
+    percentual_carteira: 65.22,
   },
   {
     id: 2,
@@ -33,6 +41,13 @@ const mockPositions: Position[] = [
     preco_medio: 65.0,
     data_criacao: '2024-02-10',
     updated_at: '2024-02-10',
+    // Calculated values
+    preco_atual: 65.0, // Same as preco_medio (no market price available)
+    valor_investido: 3250.00,
+    valor_atual: 3250.00,
+    ganho_valor: 0.00,
+    ganho_percentual: 0.00,
+    percentual_carteira: 34.78,
   },
   {
     id: 3,
@@ -45,6 +60,13 @@ const mockPositions: Position[] = [
     preco_medio: 150.0,
     data_criacao: '2024-03-05',
     updated_at: '2024-03-05',
+    // Calculated values
+    preco_atual: 160.0,
+    valor_investido: 1500.00,
+    valor_atual: 1600.00,
+    ganho_valor: 100.00,
+    ganho_percentual: 6.67,
+    percentual_carteira: 100.00,
   },
   {
     id: 4,
@@ -57,6 +79,13 @@ const mockPositions: Position[] = [
     preco_medio: 120000.0,
     data_criacao: '2024-04-01',
     updated_at: '2024-04-01',
+    // Calculated values
+    preco_atual: 125000.0,
+    valor_investido: 60000.00,
+    valor_atual: 62500.00,
+    ganho_valor: 2500.00,
+    ganho_percentual: 4.17,
+    percentual_carteira: 100.00,
   },
 ];
 

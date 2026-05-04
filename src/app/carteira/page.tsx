@@ -9,7 +9,6 @@ import { AssetClassTabs } from '@/components/carteira/AssetClassTabs';
 import { PositionList } from '@/components/carteira/PositionList';
 import { usePositions } from '@/hooks/usePositions';
 import { formatCurrency } from '@/lib/formatters';
-import { enrichPositionsWithCalculatedValues } from '@/lib/position-helpers';
 import type { AssetClass } from '@/types';
 import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
 
@@ -30,14 +29,19 @@ export default function CarteiraPage() {
     return counts;
   }, [positions]);
 
-  // Filter positions by active tab and enrich with calculated values
+  // Filter positions by active tab (positions already have calculated values from API)
   const filteredPositions = useMemo(() => {
-    const tabPositions = positions.filter((pos) => pos.classe_ativo === activeTab);
-    return enrichPositionsWithCalculatedValues(tabPositions);
+    return positions.filter((pos) => pos.classe_ativo === activeTab);
   }, [positions, activeTab]);
 
-  const totalInvestido = positions.reduce(
-    (acc, pos) => acc + pos.quantidade * pos.preco_medio,
+  // Calculate totals using market-based values
+  const totalValorAtual = positions.reduce(
+    (acc, pos) => acc + pos.valor_atual,
+    0
+  );
+  
+  const totalValorInvestido = positions.reduce(
+    (acc, pos) => acc + pos.valor_investido,
     0
   );
 
@@ -65,8 +69,13 @@ export default function CarteiraPage() {
         <div>
           <h1 className="text-2xl font-bold text-text-primary">Carteira</h1>
           <p className="text-text-secondary">
-            {positions.length} {positions.length === 1 ? 'posição' : 'posições'} • Valor total: {formatCurrency(totalInvestido)}
+            {positions.length} {positions.length === 1 ? 'posição' : 'posições'} • Valor total: {formatCurrency(totalValorAtual)}
           </p>
+          {positions.length > 0 && (
+            <p className="text-sm text-text-secondary mt-1">
+              Investido: {formatCurrency(totalValorInvestido)}
+            </p>
+          )}
         </div>
         <Link href="/nova-posicao">
           <Button>

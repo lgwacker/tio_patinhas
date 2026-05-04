@@ -1,17 +1,17 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { Position } from '@/types';
+import type { PositionWithValues } from '@/lib/carteira-types';
 
 interface UsePositionsReturn {
-  positions: Position[];
+  positions: PositionWithValues[];
   isLoading: boolean;
   error: Error | null;
   refetch: () => Promise<void>;
 }
 
 export function usePositions(): UsePositionsReturn {
-  const [positions, setPositions] = useState<Position[]>([]);
+  const [positions, setPositions] = useState<PositionWithValues[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -20,7 +20,7 @@ export function usePositions(): UsePositionsReturn {
       setIsLoading(true);
       setError(null);
       
-      const response = await fetch('/api/positions');
+      const response = await fetch('/api/positions/with-quotes');
       
       if (!response.ok) {
         throw new Error(`Failed to fetch positions: ${response.statusText}`);
