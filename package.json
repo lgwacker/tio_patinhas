@@ -10,7 +10,11 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
+    "rebuild:sqlite": "npm rebuild better-sqlite3",
     "sandcastle": "npx tsx .sandcastle/main.mts"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "better-sqlite3": "^12.0.0",
