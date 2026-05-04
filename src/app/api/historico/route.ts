@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createHistoricoDependencies } from '@/lib/composition-helpers';
 
-// Force dynamic rendering to prevent stale data caching
-// Related to Issue #54: Dashboard shows stale data after creating positions/operations
+// Dynamic rendering ensures fresh data on each request (Issue #54)
 export const dynamic = 'force-dynamic';
 
 export async function GET() {

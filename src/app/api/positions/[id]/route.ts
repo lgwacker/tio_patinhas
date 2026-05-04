@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createPositionModule, createQuotesService } from '@/lib/composition-helpers';
 
-// Force dynamic rendering to prevent stale data caching
+// Dynamic rendering ensures fresh data on each request (Issue #54)
 export const dynamic = 'force-dynamic';
 
 export async function GET(

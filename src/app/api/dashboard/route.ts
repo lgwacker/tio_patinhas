@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { DashboardService } from './service';
 import { createDashboardDependencies } from '@/lib/composition-helpers';
 
-// Force dynamic rendering to prevent stale data caching
-// Issue #54: Dashboard was showing stale data after creating new positions
+// Dynamic rendering ensures fresh data on each request (Issue #54)
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
