@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { MigrationRunner } from '@/data/MigrationRunner';
@@ -11,8 +13,25 @@ let dbModule: DatabaseModule | null = null;
 let positionModule: PositionModule | null = null;
 let quoteService: QuotesService | null = null;
 
+/**
+ * Ensures the data directory exists before opening the database.
+ * Skips for in-memory databases (used in tests).
+ */
+function ensureDataDirectory(dbPath: string): void {
+  // Skip for in-memory databases
+  if (dbPath === ':memory:' || dbPath.includes(':memory:')) {
+    return;
+  }
+
+  const dir = path.dirname(dbPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+}
+
 export function getDatabase(): Database.Database {
   if (!db) {
+    ensureDataDirectory(dbPath);
     db = new Database(dbPath);
     db.pragma('journal_mode = WAL');
     
