@@ -1,6 +1,10 @@
-const CACHE_NAME = 'tio-patinhas-v2';
+const CACHE_NAME = 'tio-patinhas-v3';
 const STATIC_ASSETS = [
   '/',
+  '/carteira',
+  '/historico',
+  '/nova-posicao',
+  '/configuracoes',
   '/manifest.json',
   '/icon-192x192.png',
   '/icon-512x512.png',
@@ -58,6 +62,13 @@ self.addEventListener('fetch', (event) => {
 
       // No cache, fetch from network
       return fetch(event.request).then((response) => {
+        // Cache successful HTML navigation requests (dynamic routes like /posicao/[id])
+        if (event.request.mode === 'navigate' && response.ok) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+        }
         // Cache successful responses for static assets
         if (response.ok && shouldCache(event.request.url)) {
           const clone = response.clone();
