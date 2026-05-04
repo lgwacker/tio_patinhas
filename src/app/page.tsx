@@ -40,7 +40,7 @@ export default function DashboardPage() {
         const dashboardData = await response.json();
         setData(dashboardData);
       } catch (err) {
-        console.error('Dashboard data fetch error:', err);
+        console.error('[Dashboard] Failed to fetch data:', err);
         setError(true);
       } finally {
         setLoading(false);
@@ -50,9 +50,9 @@ export default function DashboardPage() {
     fetchDashboardData();
   }, [retryCount]);
 
-  const handleRetry = () => {
+  function handleRetry() {
     setRetryCount(prev => prev + 1);
-  };
+  }
 
   if (loading) {
     return (

@@ -26,7 +26,6 @@ global.fetch = mockFetch;
 describe('DashboardPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -106,7 +105,7 @@ describe('DashboardPage', () => {
   });
 
   it('should log technical error to console for debugging', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error');
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     mockFetch.mockRejectedValueOnce(new Error('Database connection failed'));
 
     render(<DashboardPage />);
@@ -116,7 +115,7 @@ describe('DashboardPage', () => {
     });
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Dashboard data fetch error:',
+      '[Dashboard] Failed to fetch data:',
       expect.any(Error)
     );
   });
