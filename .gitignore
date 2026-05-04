@@ -42,3 +42,9 @@ yarn-error.log*
 *.sqlite
 *.sqlite3
 data/*.db
+
+# Build cache
+*.tsbuildinfo
+
+# Local database
+data/
