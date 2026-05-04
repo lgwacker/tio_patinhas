@@ -96,7 +96,7 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText('Tipo');
       expect(label).toHaveAttribute('for', 'tipo');
-      
+
       const select = screen.getByLabelText('Tipo');
       expect(select).toHaveAttribute('id', 'tipo');
       expect(select).toHaveAttribute('name', 'tipo');
@@ -118,7 +118,7 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText('Quantidade');
       expect(label).toHaveAttribute('for', 'quantidade');
-      
+
       const input = screen.getByLabelText('Quantidade');
       expect(input).toHaveAttribute('id', 'quantidade');
       expect(input).toHaveAttribute('name', 'quantidade');
@@ -129,7 +129,7 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText(/Valor Total/);
       expect(label).toHaveAttribute('for', 'valor_total');
-      
+
       const input = screen.getByLabelText(/Valor Total/);
       expect(input).toHaveAttribute('id', 'valor_total');
       expect(input).toHaveAttribute('name', 'valor_total');
