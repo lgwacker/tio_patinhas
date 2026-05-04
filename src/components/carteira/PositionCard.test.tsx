@@ -65,6 +65,14 @@ describe('PositionCard', () => {
     expect(link).toHaveAttribute('href', '/posicao/1');
   });
 
+  it('should have accessible link with aria-label for screen readers', () => {
+    render(<PositionCard position={mockPosition} />);
+
+    const link = screen.getByLabelText('Ver detalhes de PETR4');
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute('href', '/posicao/1');
+  });
+
   it('should render without optional fields when not provided', () => {
     const positionWithoutName = { ...mockPosition, nome: '' };
     render(<PositionCard position={positionWithoutName} />);
