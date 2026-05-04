@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign, Edit2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate, calcularPrecoUnitario } from '@/lib/formatters';
+import { VALIDATION_LIMITS } from '@/lib/constants';
 
 import type { Position, Operation } from '@/types';
 
@@ -221,7 +222,8 @@ export function PositionDetailClient({ position, operations: initialOperations }
               <div className="flex gap-3">
                 <input
                   type="number"
-                  min="0.01"
+                  min={VALIDATION_LIMITS.valorTotal.min}
+                  max={VALIDATION_LIMITS.valorTotal.max}
                   step="0.01"
                   value={manualPrice}
                   onChange={(e) => setManualPrice(e.target.value)}
@@ -334,7 +336,8 @@ export function PositionDetailClient({ position, operations: initialOperations }
                   </label>
                   <input
                     type="number"
-                    min="1"
+                    min={VALIDATION_LIMITS.quantidade.min}
+                    max={VALIDATION_LIMITS.quantidade.max}
                     step="1"
                     value={formData.quantidade}
                     onChange={(e) => setFormData({ ...formData, quantidade: e.target.value })}
@@ -350,7 +353,8 @@ export function PositionDetailClient({ position, operations: initialOperations }
                   </label>
                   <input
                     type="number"
-                    min="0.01"
+                    min={VALIDATION_LIMITS.valorTotal.min}
+                    max={VALIDATION_LIMITS.valorTotal.max}
                     step="0.01"
                     value={formData.valor_total}
                     onChange={(e) => setFormData({ ...formData, valor_total: e.target.value })}

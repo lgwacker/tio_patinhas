@@ -47,73 +47,121 @@ describe('PositionDetailClient Accessibility', () => {
     },
   ];
 
+  function renderComponent(props: { position?: typeof mockPosition; operations?: Operation[] } = {}) {
+    const { position = mockPosition, operations = mockOperations } = props;
+    return render(<PositionDetailClient position={position} operations={operations} />);
+  }
+
+  function openNovaOperacaoForm() {
+    const operacaoButton = screen.getByRole('button', { name: /Operação/i });
+    fireEvent.click(operacaoButton);
+  }
+
+  function openManualPriceForm() {
+    const editButton = screen.getByRole('button', { name: 'Definir preço manual' });
+    fireEvent.click(editButton);
+  }
+
   it('should have accessible name for back button', () => {
-    render(
-      <PositionDetailClient
-        position={mockPosition}
-        operations={mockOperations}
-      />
-    );
+    renderComponent();
 
     const backButton = screen.getByRole('button', { name: 'Voltar para carteira' });
     expect(backButton).toBeInTheDocument();
   });
 
   it('should have accessible name for edit price button when price is available', () => {
-    render(
-      <PositionDetailClient
-        position={mockPosition}
-        operations={mockOperations}
-      />
-    );
+    renderComponent();
 
     const editButton = screen.getByRole('button', { name: 'Definir preço manual' });
     expect(editButton).toBeInTheDocument();
   });
 
   it('should have accessible name for refresh price button', () => {
-    render(
-      <PositionDetailClient
-        position={mockPosition}
-        operations={mockOperations}
-      />
-    );
+    renderComponent();
 
     const refreshButton = screen.getByRole('button', { name: 'Atualizar preço' });
     expect(refreshButton).toBeInTheDocument();
   });
 
   it('should not show edit price button when price is not available', () => {
-    const positionWithoutPrice = {
-      ...mockPosition,
-      precoAtual: 0,
-    };
+    const positionWithoutPrice = { ...mockPosition, precoAtual: 0 };
 
-    render(
-      <PositionDetailClient
-        position={positionWithoutPrice}
-        operations={mockOperations}
-      />
-    );
+    renderComponent({ position: positionWithoutPrice });
 
     const editButton = screen.queryByRole('button', { name: 'Definir preço manual' });
     expect(editButton).not.toBeInTheDocument();
   });
 
   it('should still show refresh button when price is not available', () => {
-    const positionWithoutPrice = {
-      ...mockPosition,
-      precoAtual: 0,
-    };
+    const positionWithoutPrice = { ...mockPosition, precoAtual: 0 };
 
-    render(
-      <PositionDetailClient
-        position={positionWithoutPrice}
-        operations={mockOperations}
-      />
-    );
+    renderComponent({ position: positionWithoutPrice });
 
     const refreshButton = screen.getByRole('button', { name: 'Atualizar preço' });
     expect(refreshButton).toBeInTheDocument();
+  });
+
+  describe('Nova Operação form', () => {
+    it('should have quantidade input with valid max attribute for accessibility', () => {
+      renderComponent();
+      openNovaOperacaoForm();
+
+      const input = screen.getByPlaceholderText('100');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should have valor_total input with valid max attribute for accessibility', () => {
+      renderComponent();
+      openNovaOperacaoForm();
+
+      const input = screen.getByPlaceholderText('2500.00');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should accept positive values in quantidade input', () => {
+      renderComponent();
+      openNovaOperacaoForm();
+
+      const input = screen.getByPlaceholderText('100');
+      fireEvent.change(input, { target: { value: '10' } });
+      expect(input).toHaveValue(10);
+    });
+
+    it('should accept positive values in valor_total input', () => {
+      renderComponent();
+      openNovaOperacaoForm();
+
+      const input = screen.getByPlaceholderText('2500.00');
+      fireEvent.change(input, { target: { value: '1000' } });
+      expect(input).toHaveValue(1000);
+    });
+  });
+
+  describe('Manual price form', () => {
+    it('should have price input with valid max attribute for accessibility', () => {
+      renderComponent();
+      openManualPriceForm();
+
+      const input = screen.getByPlaceholderText('Ex: 28.50');
+      expect(input).toHaveAttribute('max');
+      const maxValue = parseFloat(input.getAttribute('max') || '0');
+      const minValue = parseFloat(input.getAttribute('min') || '0');
+      expect(maxValue).toBeGreaterThan(minValue);
+    });
+
+    it('should accept positive values in manual price input', () => {
+      renderComponent();
+      openManualPriceForm();
+
+      const input = screen.getByPlaceholderText('Ex: 28.50');
+      fireEvent.change(input, { target: { value: '50.00' } });
+      expect(input).toHaveValue(50);
+    });
   });
 });
