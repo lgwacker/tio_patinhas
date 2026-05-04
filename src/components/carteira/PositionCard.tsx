@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/Card';
 import type { PositionWithValues } from '@/lib/carteira-types';
 import { formatCurrency, formatQuantity, formatPercentageAbsolute } from '@/lib/formatters';
@@ -9,15 +9,12 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 
 interface PositionCardProps {
   position: PositionWithValues;
-  onClick?: (position: PositionWithValues) => void;
 }
 
-export function PositionCard({ position, onClick }: PositionCardProps) {
+export function PositionCard({ position }: PositionCardProps) {
   return (
-    <Card
-      className="cursor-pointer hover:border-primary/50 transition-colors"
-      onClick={() => onClick?.(position)}
-    >
+    <Link href={`/posicao/${position.id}`}>
+      <Card className="cursor-pointer hover:border-primary/50 transition-colors">
       <CardContent className="p-4">
         <div className="flex justify-between items-start mb-3">
           <div>
@@ -67,23 +64,22 @@ export function PositionCard({ position, onClick }: PositionCardProps) {
 
         <ProgressBar percentage={position.percentual_carteira} />
       </CardContent>
-    </Card>
+      </Card>
+    </Link>
   );
 }
 
 interface PositionCardListProps {
   positions: PositionWithValues[];
-  onPositionClick?: (position: PositionWithValues) => void;
 }
 
-export function PositionCardList({ positions, onPositionClick }: PositionCardListProps) {
+export function PositionCardList({ positions }: PositionCardListProps) {
   return (
     <div className="md:hidden space-y-3">
       {positions.map((position) => (
         <PositionCard
           key={position.id}
           position={position}
-          onClick={onPositionClick}
         />
       ))}
     </div>

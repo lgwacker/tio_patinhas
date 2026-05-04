@@ -1,6 +1,13 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { PositionCard, PositionCardList } from '@/components/carteira/PositionCard';
 import type { PositionWithValues } from '@/lib/carteira-types';
+
+// Mock next/link
+jest.mock('next/link', () => {
+  return function Link({ href, children, ...props }: { href: string; children: React.ReactNode }) {
+    return <a href={href} {...props}>{children}</a>;
+  };
+});
 
 const mockPosition: PositionWithValues = {
   id: 1,
@@ -22,21 +29,15 @@ const mockPosition: PositionWithValues = {
 };
 
 describe('PositionCard', () => {
-  const mockOnClick = jest.fn();
-
-  beforeEach(() => {
-    mockOnClick.mockClear();
-  });
-
   it('should render position ticker and name', () => {
-    render(<PositionCard position={mockPosition} onClick={mockOnClick} />);
+    render(<PositionCard position={mockPosition} />);
 
     expect(screen.getByText('PETR4')).toBeInTheDocument();
     expect(screen.getByText('Petrobras PN')).toBeInTheDocument();
   });
 
   it('should render position values', () => {
-    render(<PositionCard position={mockPosition} onClick={mockOnClick} />);
+    render(<PositionCard position={mockPosition} />);
 
     expect(screen.getByText('R$ 3.280,00')).toBeInTheDocument(); // valor_atual
     expect(screen.getByText('100 unid.')).toBeInTheDocument(); // quantidade
@@ -44,28 +45,24 @@ describe('PositionCard', () => {
   });
 
   it('should display gain values with correct colors', () => {
-    render(<PositionCard position={mockPosition} onClick={mockOnClick} />);
+    render(<PositionCard position={mockPosition} />);
 
     expect(screen.getByText('+R$ 730,00')).toBeInTheDocument();
     expect(screen.getByText('+28.63%')).toBeInTheDocument();
   });
 
   it('should display portfolio percentage', () => {
-    render(<PositionCard position={mockPosition} onClick={mockOnClick} />);
+    render(<PositionCard position={mockPosition} />);
 
     // Progress bar shows the percentage, and it's also shown as text in the grid
     expect(screen.getAllByText(/45\.2%/).length).toBeGreaterThan(0);
   });
 
-  it('should call onClick when card is clicked', () => {
-    render(<PositionCard position={mockPosition} onClick={mockOnClick} />);
+  it('should link to position detail page', () => {
+    render(<PositionCard position={mockPosition} />);
 
-    const card = screen.getByText('PETR4').closest('div[class*="bg-surface"]');
-    if (card) {
-      fireEvent.click(card);
-    }
-
-    expect(mockOnClick).toHaveBeenCalledWith(mockPosition);
+    const link = screen.getByText('PETR4').closest('a');
+    expect(link).toHaveAttribute('href', '/posicao/1');
   });
 
   it('should render without optional fields when not provided', () => {

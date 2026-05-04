@@ -9,11 +9,6 @@ export interface PositionWithValues extends Position {
   percentual_carteira: number;
 }
 
-export interface PositionListProps {
-  positions: PositionWithValues[];
-  onPositionClick?: (position: PositionWithValues) => void;
-}
-
 export interface AssetClassTab {
   value: AssetClass;
   label: string;

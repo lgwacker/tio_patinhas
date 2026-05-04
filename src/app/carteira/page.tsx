@@ -103,9 +103,7 @@ export default function CarteiraPage() {
           </p>
         </div>
       ) : (
-        <PositionList 
-          positions={filteredPositions}
-        />
+        <PositionList positions={filteredPositions} />
       )}
     </div>
   );

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { PositionTable } from '@/components/carteira/PositionTable';
 import type { PositionWithValues } from '@/lib/carteira-types';
 
@@ -42,14 +42,8 @@ const mockPositions: PositionWithValues[] = [
 ];
 
 describe('PositionTable', () => {
-  const mockOnPositionClick = jest.fn();
-
-  beforeEach(() => {
-    mockOnPositionClick.mockClear();
-  });
-
   it('should render table headers correctly', () => {
-    render(<PositionTable positions={mockPositions} onPositionClick={mockOnPositionClick} />);
+    render(<PositionTable positions={mockPositions} />);
 
     expect(screen.getByText('Ticker')).toBeInTheDocument();
     expect(screen.getByText('Quantidade')).toBeInTheDocument();
@@ -61,7 +55,7 @@ describe('PositionTable', () => {
   });
 
   it('should render position data correctly', () => {
-    render(<PositionTable positions={mockPositions} onPositionClick={mockOnPositionClick} />);
+    render(<PositionTable positions={mockPositions} />);
 
     // Check first position
     expect(screen.getByText('PETR4')).toBeInTheDocument();
@@ -75,7 +69,7 @@ describe('PositionTable', () => {
   });
 
   it('should display gain/loss with correct colors', () => {
-    render(<PositionTable positions={mockPositions} onPositionClick={mockOnPositionClick} />);
+    render(<PositionTable positions={mockPositions} />);
 
     const gainElement = screen.getByText('+R$ 730,00');
     expect(gainElement).toHaveClass('text-profit');
@@ -84,15 +78,14 @@ describe('PositionTable', () => {
     expect(lossElement).toHaveClass('text-loss');
   });
 
-  it('should call onPositionClick when row is clicked', () => {
-    render(<PositionTable positions={mockPositions} onPositionClick={mockOnPositionClick} />);
+  it('should link to position detail page', () => {
+    render(<PositionTable positions={mockPositions} />);
 
-    const petrRow = screen.getByText('PETR4').closest('tr');
-    if (petrRow) {
-      fireEvent.click(petrRow);
-    }
+    const petrLink = screen.getByText('PETR4').closest('a');
+    expect(petrLink).toHaveAttribute('href', '/posicao/1');
 
-    expect(mockOnPositionClick).toHaveBeenCalledWith(mockPositions[0]);
+    const valeLink = screen.getByText('VALE3').closest('a');
+    expect(valeLink).toHaveAttribute('href', '/posicao/2');
   });
 
   it('should have hidden class on mobile viewport', () => {

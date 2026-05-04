@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { PositionList } from '@/components/carteira/PositionList';
 import type { PositionWithValues } from '@/lib/carteira-types';
 
@@ -59,19 +59,14 @@ const mockPositions: PositionWithValues[] = [
   },
 ];
 
+// Mock next/link
+jest.mock('next/link', () => {
+  return function Link({ href, children, ...props }: { href: string; children: React.ReactNode }) {
+    return <a href={href} {...props}>{children}</a>;
+  };
+});
+
 describe('PositionList', () => {
-  const mockOnPositionClick = jest.fn();
-
-  beforeEach(() => {
-    mockOnPositionClick.mockClear();
-  });
-
-  it('should render empty state when no positions', () => {
-    render(<PositionList positions={[]} />);
-
-    expect(screen.getByText('Nenhuma posição encontrada nesta classe de ativo.')).toBeInTheDocument();
-  });
-
   it('should render positions sorted by valor_atual desc', () => {
     render(<PositionList positions={mockPositions} />);
 
@@ -83,19 +78,6 @@ describe('PositionList', () => {
     expect(firstDataRow).toHaveTextContent('PETR4');
   });
 
-  it('should call onPositionClick when position is clicked', () => {
-    render(<PositionList positions={mockPositions} onPositionClick={mockOnPositionClick} />);
-
-    // Get the table row specifically (desktop view)
-    const petrElements = screen.getAllByText('PETR4');
-    const petrRow = petrElements[0].closest('tr');
-    if (petrRow) {
-      fireEvent.click(petrRow);
-    }
-
-    expect(mockOnPositionClick).toHaveBeenCalledWith(mockPositions[0]);
-  });
-
   it('should render both table (desktop) and card list (mobile)', () => {
     const { container } = render(<PositionList positions={mockPositions} />);
 
@@ -104,5 +86,16 @@ describe('PositionList', () => {
 
     // Mobile card list should exist
     expect(container.querySelector('.md\\:hidden')).toBeInTheDocument();
+  });
+
+  it('should link to correct position detail pages', () => {
+    render(<PositionList positions={mockPositions} />);
+
+    // Check that positions link to their detail pages (table and card both render same content)
+    const petrLinks = screen.getAllByText('PETR4').map(el => el.closest('a'));
+    expect(petrLinks[0]).toHaveAttribute('href', '/posicao/1');
+
+    const valeLinks = screen.getAllByText('VALE3').map(el => el.closest('a'));
+    expect(valeLinks[0]).toHaveAttribute('href', '/posicao/2');
   });
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import Link from 'next/link';
 import type { PositionWithValues } from '@/lib/carteira-types';
 import { formatCurrency, formatQuantity } from '@/lib/formatters';
 import { GainLossCurrency, GainLossIndicator } from '@/components/ui/GainLossIndicator';
@@ -8,10 +8,9 @@ import { ProgressBar } from '@/components/ui/ProgressBar';
 
 interface PositionTableProps {
   positions: PositionWithValues[];
-  onPositionClick?: (position: PositionWithValues) => void;
 }
 
-export function PositionTable({ positions, onPositionClick }: PositionTableProps) {
+export function PositionTable({ positions }: PositionTableProps) {
   return (
     <div className="hidden md:block overflow-x-auto">
       <table className="w-full">
@@ -44,34 +43,39 @@ export function PositionTable({ positions, onPositionClick }: PositionTableProps
           {positions.map((position) => (
             <tr
               key={position.id}
-              onClick={() => onPositionClick?.(position)}
               className="border-b border-border hover:bg-surface/50 cursor-pointer transition-colors"
             >
-              <td className="py-3 px-4">
-                <div className="font-medium text-text-primary">{position.ticker}</div>
-                {position.nome && (
-                  <div className="text-xs text-text-secondary truncate max-w-[150px]">
-                    {position.nome}
+              <td colSpan={7} className="p-0">
+                <Link href={`/posicao/${position.id}`} className="contents">
+                  <div className="flex w-full">
+                    <div className="py-3 px-4 flex-1">
+                      <div className="font-medium text-text-primary">{position.ticker}</div>
+                      {position.nome && (
+                        <div className="text-xs text-text-secondary truncate max-w-[150px]">
+                          {position.nome}
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-right py-3 px-4 text-text-primary w-[100px]">
+                      {formatQuantity(position.quantidade)}
+                    </div>
+                    <div className="text-right py-3 px-4 font-semibold text-text-primary w-[120px]">
+                      {formatCurrency(position.valor_atual)}
+                    </div>
+                    <div className="text-right py-3 px-4 text-text-secondary w-[120px]">
+                      {formatCurrency(position.valor_investido)}
+                    </div>
+                    <div className="text-right py-3 px-4 w-[120px]">
+                      <GainLossCurrency value={position.ganho_valor} showIcon={false} />
+                    </div>
+                    <div className="text-right py-3 px-4 w-[100px]">
+                      <GainLossIndicator value={position.ganho_percentual} showIcon={false} />
+                    </div>
+                    <div className="py-3 px-4 w-[150px]">
+                      <ProgressBar percentage={position.percentual_carteira} />
+                    </div>
                   </div>
-                )}
-              </td>
-              <td className="text-right py-3 px-4 text-text-primary">
-                {formatQuantity(position.quantidade)}
-              </td>
-              <td className="text-right py-3 px-4 font-semibold text-text-primary">
-                {formatCurrency(position.valor_atual)}
-              </td>
-              <td className="text-right py-3 px-4 text-text-secondary">
-                {formatCurrency(position.valor_investido)}
-              </td>
-              <td className="text-right py-3 px-4">
-                <GainLossCurrency value={position.ganho_valor} showIcon={false} />
-              </td>
-              <td className="text-right py-3 px-4">
-                <GainLossIndicator value={position.ganho_percentual} showIcon={false} />
-              </td>
-              <td className="py-3 px-4">
-                <ProgressBar percentage={position.percentual_carteira} />
+                </Link>
               </td>
             </tr>
           ))}
