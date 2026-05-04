@@ -17,15 +17,11 @@ export default function CarteiraPage() {
   const [activeTab, setActiveTab] = useState<AssetClass>('acao');
   const { positions, isLoading } = usePositions();
 
-  // Calculate counts for each asset class
   const assetClassCounts = useMemo(() => {
-    const counts: Record<AssetClass, number> = {
-      acao: 0,
-      fii: 0,
-      renda_fixa: 0,
-      etf: 0,
-      cripto: 0,
-    };
+    const counts = ASSET_CLASS_TABS.reduce<Record<AssetClass, number>>(
+      (acc, tab) => ({ ...acc, [tab.value]: 0 }),
+      {} as Record<AssetClass, number>
+    );
     positions.forEach((pos) => {
       counts[pos.classe_ativo]++;
     });

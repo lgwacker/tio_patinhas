@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import type { AssetClass } from '@/types';
 import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
 
