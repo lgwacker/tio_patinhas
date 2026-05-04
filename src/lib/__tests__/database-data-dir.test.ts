@@ -10,34 +10,37 @@ async function getFreshDatabase(dbPath: string) {
 }
 
 describe('Native module loading', () => {
+  let db: Database.Database;
+
+  afterEach(() => {
+    db?.close();
+  });
+
   it('should load better-sqlite3 native module without errors', () => {
     expect(() => {
-      const db = new Database(':memory:');
-      db.close();
+      db = new Database(':memory:');
     }).not.toThrow();
   });
 
   it('should create and query in-memory database', () => {
-    const db = new Database(':memory:');
-    
+    db = new Database(':memory:');
+
     db.exec('CREATE TABLE test (id INTEGER PRIMARY KEY, name TEXT)');
     db.prepare('INSERT INTO test (name) VALUES (?)').run('Test Value');
-    
-    const result = db.prepare('SELECT * FROM test WHERE name = ?').get('Test Value') as { id: number; name: string };
-    
+
+    const row = db.prepare('SELECT * FROM test WHERE name = ?').get('Test Value');
+    const result = row as { id: number; name: string };
+
     expect(result).toBeDefined();
     expect(result.name).toBe('Test Value');
-    
-    db.close();
   });
 
   it('should support WAL journal mode', () => {
-    const db = new Database(':memory:');
-    
+    db = new Database(':memory:');
+
     const pragma = db.pragma('journal_mode');
+
     expect(pragma).toBeDefined();
-    
-    db.close();
   });
 });
 
