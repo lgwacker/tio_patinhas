@@ -2,12 +2,14 @@ import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { PositionModule } from '@/domain/position/PositionModule';
+import { QuotesService } from '@/domain/quotes';
 
 const dbPath = process.env.DATABASE_PATH || './data/tiopatinhas.db';
 
 let db: Database.Database | null = null;
 let dbModule: DatabaseModule | null = null;
 let positionModule: PositionModule | null = null;
+let quoteService: QuotesService | null = null;
 
 export function getDatabase(): Database.Database {
   if (!db) {
@@ -33,4 +35,13 @@ export function getPositionModule(): PositionModule {
     positionModule = new PositionModule(getDatabaseModule());
   }
   return positionModule;
+}
+
+export function getQuoteService(): QuotesService {
+  if (!quoteService) {
+    quoteService = new QuotesService(getDatabase(), {
+      cacheTtlMinutes: 15,
+    });
+  }
+  return quoteService;
 }

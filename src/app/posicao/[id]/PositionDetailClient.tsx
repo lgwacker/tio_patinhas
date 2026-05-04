@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign } from 'lucide-react';
+import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign, Edit2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate, calcularPrecoUnitario } from '@/lib/formatters';
 import { getOperationTypeBadgeClasses, getProfitLossColorClasses } from '@/lib/ui-helpers';
@@ -31,6 +31,13 @@ export function PositionDetailClient({ position, operations: initialOperations }
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Manual price state
+  const [showManualPriceForm, setShowManualPriceForm] = useState(false);
+  const [manualPrice, setManualPrice] = useState('');
+  const [isSettingManualPrice, setIsSettingManualPrice] = useState(false);
+  const [manualPriceError, setManualPriceError] = useState<string | null>(null);
+  const [currentPrice, setCurrentPrice] = useState(position.precoAtual);
 
   const precoUnitario = calcularPrecoUnitario(formData.quantidade, formData.valor_total);
 
@@ -85,6 +92,59 @@ export function PositionDetailClient({ position, operations: initialOperations }
     }
   };
 
+  const handleSetManualPrice = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setManualPriceError(null);
+    setIsSettingManualPrice(true);
+
+    const price = parseFloat(manualPrice);
+    if (isNaN(price) || price <= 0) {
+      setManualPriceError('Preço deve ser um número maior que zero');
+      setIsSettingManualPrice(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/quotes/${position.ticker}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ preco: price }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setManualPriceError(data.error || 'Erro ao definir preço manual');
+        return;
+      }
+
+      // Reload page to reflect new price
+      window.location.reload();
+    } catch (error) {
+      setManualPriceError('Erro ao definir preço manual');
+    } finally {
+      setIsSettingManualPrice(false);
+    }
+  };
+
+  const handleRefreshPrice = async () => {
+    // Clear cache and reload page
+    try {
+      const response = await fetch(`/api/quotes/${position.ticker}`, {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.preco && data.preco > 0) {
+          setCurrentPrice(data.preco);
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing price:', error);
+    }
+  };
+
   const isProfit = position.ganhoValor >= 0;
   const profitLossClasses = getProfitLossColorClasses(isProfit);
   const ganhoSign = isProfit ? '+' : '';
@@ -109,6 +169,80 @@ export function PositionDetailClient({ position, operations: initialOperations }
           Operação
         </Button>
       </div>
+
+      {/* Current Price Card */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-text-secondary mb-1">Preço Atual de Mercado</p>
+              <div className="flex items-center gap-3">
+                <p className="text-3xl font-bold text-text-primary">
+                  {currentPrice > 0 ? formatCurrency(currentPrice) : '—'}
+                </p>
+                {currentPrice > 0 && (
+                  <button
+                    onClick={() => setShowManualPriceForm(!showManualPriceForm)}
+                    className="text-text-secondary hover:text-primary transition-colors"
+                    title="Definir preço manual"
+                  >
+                    <Edit2 size={16} />
+                  </button>
+                )}
+              </div>
+              {currentPrice === 0 && (
+                <p className="text-sm text-text-secondary mt-1">
+                  Preço não disponível. APIs indisponíveis ou ticker não encontrado.
+                </p>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleRefreshPrice}
+                className="p-2 text-text-secondary hover:text-primary transition-colors"
+                title="Atualizar preço"
+              >
+                <RefreshCw size={20} />
+              </button>
+            </div>
+          </div>
+          
+          {/* Manual Price Form */}
+          {showManualPriceForm && (
+            <form onSubmit={handleSetManualPrice} className="mt-4 pt-4 border-t border-border">
+              <p className="text-sm text-text-secondary mb-3">
+                Definir preço manual (quando APIs falham)
+              </p>
+              {manualPriceError && (
+                <p className="text-red-400 text-sm mb-2">{manualPriceError}</p>
+              )}
+              <div className="flex gap-3">
+                <input
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  value={manualPrice}
+                  onChange={(e) => setManualPrice(e.target.value)}
+                  placeholder="Ex: 28.50"
+                  className="flex-1 px-3 py-2 bg-background border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+                <Button type="submit" disabled={isSettingManualPrice} size="sm">
+                  {isSettingManualPrice ? 'Salvando...' : 'Definir'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowManualPriceForm(false)}
+                  size="sm"
+                >
+                  Cancelar
+                </Button>
+              </div>
+            </form>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Summary Card */}
       <Card>

@@ -1,5 +1,5 @@
 import { PositionDetailClient } from './PositionDetailClient';
-import { getPositionModule } from '@/lib/database';
+import { getPositionModule, getQuoteService } from '@/lib/database';
 import { notFound } from 'next/navigation';
 
 interface PositionPageProps {
@@ -14,9 +14,19 @@ export default async function PositionPage({ params }: PositionPageProps) {
   }
 
   const positionModule = getPositionModule();
+  const quoteService = getQuoteService();
 
-  // Using 0 as precoAtual since we're not fetching real quotes yet
-  const result = positionModule.getPositionWithCalculations(id, 0);
+  // Get position data first to obtain the ticker
+  const position = positionModule.getPositionById(id);
+  if (!position) {
+    notFound();
+  }
+
+  // Fetch current price from quotes service (uses cache or fetches from APIs)
+  const precoAtual = await quoteService.fetchPrice(position.ticker) ?? 0;
+
+  // Get position with calculations using the current price
+  const result = positionModule.getPositionWithCalculations(id, precoAtual);
 
   if (!result) {
     notFound();

@@ -191,8 +191,12 @@ export class PositionModule {
     return { position: updatedPosition, operation: createdOperation };
   }
 
+  getPositionById(positionId: number): Position | null {
+    return this.db.getPositionById(positionId);
+  }
+
   getPositionWithOperations(positionId: number): PositionWithOperations | null {
-    const position = this.db.getPositionById(positionId);
+    const position = this.getPositionById(positionId);
     if (!position) return null;
 
     const operations = this.db.getOperationsByPositionId(positionId);
