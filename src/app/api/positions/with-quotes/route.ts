@@ -6,6 +6,9 @@ import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
 import { createDatabase } from '@/lib/database-helpers';
 import type { Position } from '@/types';
 
+// Dynamic rendering ensures fresh data on each request (Issue #54)
+export const dynamic = 'force-dynamic';
+
 interface QuoteRow {
   ticker: string;
   preco: number;

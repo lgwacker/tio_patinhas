@@ -3,6 +3,9 @@ import { PositionValidationError } from '@/domain/position/PositionModule';
 import { createPositionModule } from '@/lib/composition-helpers';
 import type { CreateOperationInput } from '@/types';
 
+// Dynamic rendering ensures fresh data on each request (Issue #54)
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const positionModule = createPositionModule();

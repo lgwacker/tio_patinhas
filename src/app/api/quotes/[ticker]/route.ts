@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createQuotesService } from '@/lib/composition-helpers';
 
+// Dynamic rendering ensures live quotes are fetched on each request
+export const dynamic = 'force-dynamic';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { ticker: string } }
