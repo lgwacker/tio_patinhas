@@ -34,6 +34,8 @@ export function FAB({
     touch-manipulation
   `;
 
+  const combinedClasses = `${baseClasses} ${className}`.trim();
+
   const content = (
     <>
       <span className="shrink-0">{icon}</span>
@@ -43,23 +45,14 @@ export function FAB({
 
   if (href) {
     return (
-      <a
-        href={href}
-        className={`${baseClasses} ${className}`}
-        aria-label={label}
-      >
+      <a href={href} className={combinedClasses} aria-label={label}>
         {content}
       </a>
     );
   }
 
   return (
-    <button
-      onClick={onClick}
-      className={`${baseClasses} ${className}`}
-      aria-label={label}
-      type="button"
-    >
+    <button onClick={onClick} className={combinedClasses} aria-label={label} type="button">
       {content}
     </button>
   );

@@ -71,8 +71,12 @@ self.addEventListener('fetch', (event) => {
         if (event.request.mode === 'navigate') {
           return caches.match('/offline.html');
         }
-        // For other requests, just fail
-        throw new Error('Network request failed and no cache available');
+        // For other requests, return a simple error response
+        return new Response('Network error - offline and not cached', { 
+          status: 503, 
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/plain' }
+        });
       });
     })
   );
