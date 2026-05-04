@@ -39,9 +39,11 @@ export function formatQuantity(value: number): string {
 
 /**
  * Format date string to Brazilian format (DD/MM/YYYY)
+ * Parses the date as local time to avoid UTC timezone issues
  */
 export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString('pt-BR');
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR');
 }
 
 /**

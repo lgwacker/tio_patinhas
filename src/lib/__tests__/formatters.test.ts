@@ -4,6 +4,7 @@ import {
   formatPercentageAbsolute,
   formatQuantity,
   formatAssetClassLabel,
+  formatDate,
 } from '@/lib/formatters';
 import type { AssetClass } from '@/lib/constants';
 
@@ -90,6 +91,21 @@ describe('formatters', () => {
 
     it('returns raw value for unknown asset class', () => {
       expect(formatAssetClassLabel('unknown' as AssetClass)).toBe('unknown');
+    });
+  });
+
+  describe('formatDate', () => {
+    it('should format date string to Brazilian format (DD/MM/YYYY)', () => {
+      expect(formatDate('2026-05-04')).toBe('04/05/2026');
+    });
+
+    it('should handle dates at year boundaries', () => {
+      expect(formatDate('2026-01-01')).toBe('01/01/2026');
+      expect(formatDate('2026-12-31')).toBe('31/12/2026');
+    });
+
+    it('should handle leap year dates', () => {
+      expect(formatDate('2024-02-29')).toBe('29/02/2024');
     });
   });
 });
