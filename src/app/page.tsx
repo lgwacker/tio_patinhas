@@ -25,11 +25,14 @@ function formatPercentage(value: number): string {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean>(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     async function fetchDashboardData() {
       try {
+        setLoading(true);
+        setError(false);
         const response = await fetch('/api/dashboard');
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
@@ -37,14 +40,19 @@ export default function DashboardPage() {
         const dashboardData = await response.json();
         setData(dashboardData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        console.error('Dashboard data fetch error:', err);
+        setError(true);
       } finally {
         setLoading(false);
       }
     }
 
     fetchDashboardData();
-  }, []);
+  }, [retryCount]);
+
+  const handleRetry = () => {
+    setRetryCount(prev => prev + 1);
+  };
 
   if (loading) {
     return (
@@ -56,8 +64,26 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-loss">Erro: {error}</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="text-center max-w-md mx-auto p-6">
+          <div className="mb-4">
+            <div className="w-16 h-16 bg-loss/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <TrendingDown size={32} className="text-loss" />
+            </div>
+            <h2 className="text-xl font-semibold text-text-primary mb-2">
+              Não foi possível carregar dados
+            </h2>
+            <p className="text-text-secondary mb-2">
+              Ocorreu um problema ao carregar suas informações.
+            </p>
+            <p className="text-text-secondary">
+              Por favor, tente novamente.
+            </p>
+          </div>
+          <Button onClick={handleRetry} size="lg">
+            Tentar Novamente
+          </Button>
+        </div>
       </div>
     );
   }
