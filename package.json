@@ -3,15 +3,30 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "clean": "rm -rf .next",
+    "check-env": "node scripts/check-env.js",
     "dev": "next dev",
+    "dev:bg": "node scripts/start-server.js --mode dev",
     "build": "next build",
     "start": "next start",
+    "start:bg": "node scripts/start-server.js --mode prod",
+    "stop": "node scripts/stop-server.js",
+    "restart": "npm run stop && npm run clean && npm run build && npm run start:bg",
+    "status": "node scripts/status.js",
+    "logs": "node scripts/logs.js",
+    "setup": "node scripts/setup.js",
+    "db:reset": "node scripts/db-reset.js",
+    "db:seed": "node scripts/db-seed.js",
     "lint": "next lint",
     "test": "jest",
     "test:watch": "jest --watch",
     "typecheck": "tsc --noEmit",
     "rebuild:sqlite": "npm rebuild better-sqlite3",
-    "sandcastle": "npx tsx .sandcastle/main.mts"
+    "sandcastle": "npx tsx .sandcastle/main.mts",
+    "postinstall": "npm run rebuild:sqlite",
+    "predev": "npm run check-env",
+    "prebuild": "npm run clean && npm run rebuild:sqlite && npm run check-env",
+    "prestart": "npm run check-env"
   },
   "engines": {
     "node": ">=20.0.0"

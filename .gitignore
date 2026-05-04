@@ -46,5 +46,11 @@ data/*.db
 # Build cache
 *.tsbuildinfo
 
+# Native module build artifacts (must be rebuilt per Node.js version)
+node_modules/better-sqlite3/build/
+
 # Local database
 data/
+
+# Logs
+logs/
