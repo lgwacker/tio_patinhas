@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Activity,
   Plus,
-  History
+  History,
+  WifiOff
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -26,7 +27,27 @@ export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<boolean>(false);
+  const [isOffline, setIsOffline] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    // Track online/offline status
+    function handleOnline() {
+      setIsOffline(false);
+    }
+    function handleOffline() {
+      setIsOffline(true);
+    }
+    
+    setIsOffline(!navigator.onLine);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -34,6 +55,18 @@ export default function DashboardPage() {
         setLoading(true);
         setError(false);
         const response = await fetch('/api/dashboard');
+        
+        // Check if response is the offline indicator from Service Worker
+        if (response.status === 503) {
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData.offline) {
+            setIsOffline(true);
+            setError(true);
+            setLoading(false);
+            return;
+          }
+        }
+        
         if (!response.ok) {
           throw new Error('Failed to fetch dashboard data');
         }
@@ -67,21 +100,25 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center max-w-md mx-auto p-6">
           <div className="mb-4">
-            <div className="w-16 h-16 bg-loss/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <TrendingDown size={32} className="text-loss" />
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 ${isOffline ? 'bg-warning/10' : 'bg-loss/10'}`}>
+              {isOffline ? <WifiOff size={32} className="text-warning" /> : <TrendingDown size={32} className="text-loss" />}
             </div>
             <h2 className="text-xl font-semibold text-text-primary mb-2">
-              Não foi possível carregar dados
+              {isOffline ? 'Você está offline' : 'Não foi possível carregar dados'}
             </h2>
             <p className="text-text-secondary mb-2">
-              Ocorreu um problema ao carregar suas informações.
+              {isOffline 
+                ? 'Parece que você perdeu a conexão com a internet.'
+                : 'Ocorreu um problema ao carregar suas informações.'}
             </p>
             <p className="text-text-secondary">
-              Por favor, tente novamente.
+              {isOffline 
+                ? 'Os dados exibidos podem estar desatualizados.'
+                : 'Por favor, tente novamente.'}
             </p>
           </div>
           <Button onClick={handleRetry} size="lg">
-            Tentar Novamente
+            {isOffline ? 'Tentar Reconectar' : 'Tentar Novamente'}
           </Button>
         </div>
       </div>
@@ -104,6 +141,20 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      {/* Offline Indicator Banner */}
+      {isOffline && (
+        <div className="bg-warning/10 border border-warning/30 rounded-lg p-4 flex items-center gap-3">
+          <WifiOff size={20} className="text-warning flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-warning">
+              Você está offline
+            </p>
+            <p className="text-xs text-text-secondary">
+              Os dados exibidos podem estar desatualizados. Conecte-se à internet para obter as informações mais recentes.
+            </p>
+          </div>
+        </div>
+      )}
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
