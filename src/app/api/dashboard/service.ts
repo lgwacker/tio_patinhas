@@ -2,9 +2,10 @@ import { DatabaseModule } from '@/data/DatabaseModule';
 import { Position, AssetClass, DashboardData, DashboardSummary, AssetClassDistribution, PositionWithQuote, RecentOperation } from '@/types';
 import { QuoteResolver } from '@/domain/quotes/types';
 
-const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
+const ASSET_CLASS_LABELS: Record<string, string> = {
   acao: 'Ações',
   fii: 'Fundos Imobiliários',
+  fundo_imobiliario: 'Fundos Imobiliários',
   renda_fixa: 'Renda Fixa',
   etf: 'ETFs',
   cripto: 'Criptomoedas',

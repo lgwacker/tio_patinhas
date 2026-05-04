@@ -283,5 +283,48 @@ describe('CarteiraCalculator', () => {
       expect(result[0].quantidade).toBe(100);
       expect(result[0].preco_medio).toBe(25.5);
     });
+
+    it('should include positions without quotes when quotes object is missing ticker', () => {
+      // Issue #49: positions without quotes should still be included
+      const quotes = {
+        PETR4: 32.8,
+        // VALE3 intentionally omitted - simulates API failure
+      };
+
+      const result = CarteiraCalculator.enrichPositions(mockPositions, quotes);
+
+      // Both positions should be returned
+      expect(result).toHaveLength(2);
+
+      // PETR4 should use quote price
+      expect(result[0].preco_atual).toBe(32.8);
+      expect(result[0].valor_atual).toBe(3280);
+
+      // VALE3 should use preco_medio as fallback (65.0)
+      expect(result[1].preco_atual).toBe(65.0);
+      expect(result[1].valor_atual).toBe(3250);
+    });
+
+    it('should handle all positions when quotes object is empty', () => {
+      // Issue #49: empty quotes should not make positions disappear
+      const result = CarteiraCalculator.enrichPositions(mockPositions, {});
+
+      expect(result).toHaveLength(2);
+      
+      // All positions should use preco_medio as fallback
+      expect(result[0].preco_atual).toBe(25.5);
+      expect(result[1].preco_atual).toBe(65.0);
+    });
+
+    it('should handle positions when no quotes argument is provided', () => {
+      // Issue #49: no quotes argument should not make positions disappear
+      const result = CarteiraCalculator.enrichPositions(mockPositions);
+
+      expect(result).toHaveLength(2);
+      
+      // All positions should use preco_medio as fallback
+      expect(result[0].preco_atual).toBe(25.5);
+      expect(result[1].preco_atual).toBe(65.0);
+    });
   });
 });

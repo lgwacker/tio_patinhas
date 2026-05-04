@@ -128,7 +128,7 @@ const positions = [
   {
     ticker: 'HGLG11',
     nome: 'CSHG Logística FII',
-    classe_ativo: 'fundo_imobiliario',
+    classe_ativo: 'fii',
     setor: 'Logística',
     segmento: 'Galpões Industriais',
     operations: [

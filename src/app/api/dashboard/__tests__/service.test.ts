@@ -222,5 +222,44 @@ describe('DashboardService', () => {
       quoteResolver.clear();
       expect(quoteResolver.resolve('TEST')).toBeNull();
     });
+
+    it('should include positions without quotes using preco_medio fallback', () => {
+      // This test reproduces issue #49: positions without quotes should still appear
+      // Create a position with a fake ticker that has no quote
+      dataModule.createPosition({
+        ticker: 'ABCD3',
+        nome: 'Fake Company Ltda',
+        classe_ativo: 'acao',
+        quantidade: 10,
+        preco_medio: 100.0,
+      });
+
+      dataModule.createPosition({
+        ticker: 'PETR4',
+        nome: 'Petrobras PN',
+        classe_ativo: 'acao',
+        quantidade: 100,
+        preco_medio: 25.5,
+      });
+
+      // Only set quote for PETR4, not ABCD3
+      quoteResolver.setPrice('PETR4', 30.0);
+
+      const data = service.getDashboardData();
+
+      // Both positions should be counted
+      expect(data.summary.positionCount).toBe(2);
+      
+      // PETR4: 100 * 30 = 3000
+      // ABCD3: 10 * 100 (preco_medio fallback) = 1000
+      // Total: 4000
+      expect(data.summary.totalValue).toBe(4000);
+      expect(data.summary.totalInvested).toBe(3550); // 2550 + 1000
+      
+      // Check asset class distribution includes both positions
+      const acoes = data.assetClassDistribution.find(d => d.classe_ativo === 'acao');
+      expect(acoes).toBeDefined();
+      expect(acoes?.count).toBe(2);
+    });
   });
 });
