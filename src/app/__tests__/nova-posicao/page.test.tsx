@@ -139,11 +139,9 @@ describe('NovaPosicaoPage Accessibility', () => {
       render(<NovaPosicaoPage />);
 
       const input = screen.getByLabelText('Quantidade');
-      // Verify max attribute is set to prevent browser inferring valuemax="0" from empty string
       expect(input).toHaveAttribute('max');
       const maxValue = parseFloat(input.getAttribute('max') || '0');
       const minValue = parseFloat(input.getAttribute('min') || '0');
-      // Max must be greater than or equal to min to avoid accessibility contradiction
       expect(maxValue).toBeGreaterThanOrEqual(minValue);
     });
 
@@ -151,11 +149,9 @@ describe('NovaPosicaoPage Accessibility', () => {
       render(<NovaPosicaoPage />);
 
       const input = screen.getByLabelText(/Valor Total/);
-      // Verify max attribute is set to prevent browser inferring valuemax="0" from empty string
       expect(input).toHaveAttribute('max');
       const maxValue = parseFloat(input.getAttribute('max') || '0');
       const minValue = parseFloat(input.getAttribute('min') || '0');
-      // Max must be greater than or equal to min to avoid accessibility contradiction
       expect(maxValue).toBeGreaterThanOrEqual(minValue);
     });
   });
