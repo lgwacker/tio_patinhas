@@ -35,6 +35,7 @@ export interface PositionWithQuote extends Position {
   valor_investido: number;
   ganho_perda_valor: number;
   ganho_perda_percentual: number;
+  percentual_carteira?: number;
 }
 
 export interface Quote {

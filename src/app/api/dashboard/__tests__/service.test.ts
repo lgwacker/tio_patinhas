@@ -1,19 +1,43 @@
 import Database from 'better-sqlite3';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { DatabaseModule } from '@/data/DatabaseModule';
+import { QuoteResolver } from '@/domain/quotes';
 import { DashboardService } from '../service';
+
+/**
+ * Stub implementation of QuoteResolver for testing.
+ * Returns fixed prices without needing to seed database tables.
+ */
+class StubQuoteResolver implements QuoteResolver {
+  private prices: Map<string, number> = new Map();
+
+  setPrice(ticker: string, price: number): void {
+    this.prices.set(ticker.toUpperCase(), price);
+  }
+
+  resolve(ticker: string): number | null {
+    return this.prices.get(ticker.toUpperCase()) ?? null;
+  }
+
+  clear(): void {
+    this.prices.clear();
+  }
+}
 
 describe('DashboardService', () => {
   let db: Database.Database;
   let service: DashboardService;
   let dataModule: DatabaseModule;
+  let quoteResolver: StubQuoteResolver;
 
   beforeEach(() => {
     db = new Database(':memory:');
     const migrations = new MigrationRunner(db);
     migrations.runMigrations();
-    service = new DashboardService(db);
+    
     dataModule = new DatabaseModule(db);
+    quoteResolver = new StubQuoteResolver();
+    service = new DashboardService(dataModule, quoteResolver);
   });
 
   afterEach(() => {
@@ -72,8 +96,8 @@ describe('DashboardService', () => {
         preco_medio: 25.5,
       });
 
-      // Insert a quote with higher price
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('PETR4', 30.0);
+      // Set a quote price using the stub resolver (no raw SQL needed!)
+      quoteResolver.setPrice('PETR4', 30.0);
 
       const data = service.getDashboardData();
 
@@ -105,9 +129,9 @@ describe('DashboardService', () => {
         preco_medio: 150.0,
       });
 
-      // Add quotes
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('PETR4', 30.0);
-      db.prepare('INSERT INTO quotes (ticker, preco) VALUES (?, ?)').run('HGLG11', 160.0);
+      // Set quote prices using stub resolver
+      quoteResolver.setPrice('PETR4', 30.0);
+      quoteResolver.setPrice('HGLG11', 160.0);
 
       const data = service.getDashboardData();
 
@@ -184,6 +208,38 @@ describe('DashboardService', () => {
       expect(data.recentOperations).toHaveLength(5);
       // Should be sorted by date descending, so latest first
       expect(data.recentOperations[0].data).toBe('2024-01-21');
+    });
+
+    it('should use stubbed quote resolver without database seeding', () => {
+      // Create positions
+      dataModule.createPosition({
+        ticker: 'AAPL',
+        nome: 'Apple Inc',
+        classe_ativo: 'acao',
+        quantidade: 50,
+        preco_medio: 100.0,
+      });
+
+      // Test that stub resolver returns expected values
+      expect(quoteResolver.resolve('AAPL')).toBeNull();
+      
+      quoteResolver.setPrice('AAPL', 150.0);
+      expect(quoteResolver.resolve('AAPL')).toBe(150.0);
+      
+      // Dashboard should use the resolved price
+      const data = service.getDashboardData();
+      expect(data.summary.totalValue).toBe(7500); // 50 * 150
+      expect(data.summary.totalInvested).toBe(5000); // 50 * 100
+    });
+
+    it('should isolate tests by clearing stub resolver between tests', () => {
+      // Set a price in this test
+      quoteResolver.setPrice('TEST', 100.0);
+      expect(quoteResolver.resolve('TEST')).toBe(100.0);
+      
+      // Clear and verify it's gone
+      quoteResolver.clear();
+      expect(quoteResolver.resolve('TEST')).toBeNull();
     });
   });
 });

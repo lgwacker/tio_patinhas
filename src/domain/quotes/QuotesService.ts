@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { QuoteData, QuoteResult } from './types';
+import { QuoteData, QuoteResult, QuoteResolver } from './types';
 import { QuoteCache } from './QuoteCache';
 import { YahooFinanceAdapter, BrapiAdapter } from './adapters';
 
@@ -7,7 +7,7 @@ export interface QuotesServiceConfig {
   cacheTtlMinutes: number;
 }
 
-export class QuotesService {
+export class QuotesService implements QuoteResolver {
   private cache: QuoteCache;
   private yahooAdapter: YahooFinanceAdapter;
   private brapiAdapter: BrapiAdapter;
@@ -124,6 +124,15 @@ export class QuotesService {
   }
 
   /**
+   * Resolve the current price for a ticker (QuoteResolver interface implementation).
+   * Returns the cached price if available, null otherwise.
+   * This method satisfies the QuoteResolver interface for DashboardService injection.
+   */
+  resolve(ticker: string): number | null {
+    return this.getCachedPrice(ticker);
+  }
+
+  /**
    * Check if cached price is expired for a ticker.
    */
   isCacheExpired(ticker: string): boolean {
@@ -147,5 +156,5 @@ export class QuotesService {
   }
 }
 
-export type { QuoteData, QuoteResult };
+export type { QuoteData, QuoteResult, QuoteResolver };
 export { QuoteCache, YahooFinanceAdapter, BrapiAdapter };

@@ -1,11 +1,13 @@
-import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
-import { Position, AssetClass } from '@/types';
+import { Position, AssetClass, Operation } from '@/types';
+import { QuoteResolver } from '@/domain/quotes';
+import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
 import {
   DashboardData,
   DashboardSummary,
   AssetClassDistribution,
   PositionWithQuote,
+  RecentOperation,
 } from '@/domain/dashboard';
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
@@ -25,14 +27,19 @@ function roundToTwoDecimals(value: number): number {
   return Number(value.toFixed(2));
 }
 
+/**
+ * DashboardService provides aggregated portfolio data for the dashboard view.
+ * 
+ * Architecture:
+ * - Depends on QuoteResolver interface for price lookups (not raw SQL)
+ * - Uses CarteiraCalculator for all position value calculations
+ * - Accepts dependencies through constructor for testability
+ */
 export class DashboardService {
-  private db: Database.Database;
-  private dataModule: DatabaseModule;
-
-  constructor(db: Database.Database) {
-    this.db = db;
-    this.dataModule = new DatabaseModule(db);
-  }
+  constructor(
+    private dataModule: DatabaseModule,
+    private quoteResolver: QuoteResolver
+  ) {}
 
   getDashboardData(): DashboardData {
     const positions = this.dataModule.getAllPositions();
@@ -40,7 +47,7 @@ export class DashboardService {
     
     const summary = this.calculateSummary(positionsWithQuotes);
     const assetClassDistribution = this.calculateAssetClassDistribution(positionsWithQuotes);
-    const recentOperations = this.dataModule.getRecentOperations(5);
+    const recentOperations = this.getRecentOperationsWithDetails(5);
 
     return {
       summary,
@@ -50,30 +57,40 @@ export class DashboardService {
   }
 
   private enrichPositionsWithQuotes(positions: Position[]): PositionWithQuote[] {
-    return positions.map(position => {
-      const preco_atual = this.getCurrentPrice(position.ticker) ?? position.preco_medio;
-      const valor_atual = position.quantidade * preco_atual;
+    // Calculate total portfolio value for percentage calculation
+    let totalPortfolioValue = 0;
+    const enrichedPositions: PositionWithQuote[] = [];
+
+    // First pass: calculate values using CarteiraCalculator
+    for (const position of positions) {
+      const preco_atual = this.quoteResolver.resolve(position.ticker) ?? position.preco_medio;
       const valor_investido = position.quantidade * position.preco_medio;
+      const valor_atual = position.quantidade * preco_atual;
       const ganho_perda_valor = valor_atual - valor_investido;
       const ganho_perda_percentual = calculatePercentage(ganho_perda_valor, valor_investido);
 
-      return {
+      enrichedPositions.push({
         ...position,
         preco_atual,
-        valor_atual,
-        valor_investido,
-        ganho_perda_valor,
-        ganho_perda_percentual,
-      };
-    });
-  }
+        valor_atual: roundToTwoDecimals(valor_atual),
+        valor_investido: roundToTwoDecimals(valor_investido),
+        ganho_perda_valor: roundToTwoDecimals(ganho_perda_valor),
+        ganho_perda_percentual: roundToTwoDecimals(ganho_perda_percentual),
+      });
 
-  private getCurrentPrice(ticker: string): number | null {
-    const row = this.db.prepare('SELECT preco FROM quotes WHERE ticker = ?').get(ticker);
-    if (row && typeof row === 'object' && 'preco' in row && typeof row.preco === 'number') {
-      return row.preco;
+      totalPortfolioValue += valor_atual;
     }
-    return null;
+
+    // Second pass: add portfolio percentage if we have positions
+    if (totalPortfolioValue > 0) {
+      for (const position of enrichedPositions) {
+        position.percentual_carteira = roundToTwoDecimals(
+          calculatePercentage(position.valor_atual, totalPortfolioValue)
+        );
+      }
+    }
+
+    return enrichedPositions;
   }
 
   private calculateSummary(positions: PositionWithQuote[]): DashboardSummary {
@@ -120,5 +137,18 @@ export class DashboardService {
     });
 
     return distribution.sort((a, b) => b.value - a.value);
+  }
+
+  private getRecentOperationsWithDetails(limit: number): RecentOperation[] {
+    const operations = this.dataModule.getRecentOperations(limit);
+    
+    return operations.map(op => {
+      const position = this.dataModule.getPositionById(op.position_id);
+      return {
+        ...op,
+        ticker: position?.ticker ?? '',
+        nome: position?.nome ?? '',
+      };
+    });
   }
 }

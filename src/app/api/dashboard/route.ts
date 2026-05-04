@@ -1,12 +1,19 @@
 import { NextResponse } from 'next/server';
 import { getDatabase } from '@/lib/database';
+import { DatabaseModule } from '@/data/DatabaseModule';
+import { QuotesService } from '@/domain/quotes';
 import { DashboardService } from './service';
 
 export async function GET() {
   try {
     const db = getDatabase();
-    const service = new DashboardService(db);
-    const data = service.getDashboardData();
+    
+    // Explicitly wire dependencies at the composition root (API route)
+    const dataModule = new DatabaseModule(db);
+    const quotesService = new QuotesService(db, { cacheTtlMinutes: 15 });
+    const dashboardService = new DashboardService(dataModule, quotesService);
+    
+    const data = dashboardService.getDashboardData();
 
     return NextResponse.json(data);
   } catch (error) {
