@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule, getQuoteService } from '@/lib/database';
+import { createPositionModule, createQuotesService } from '@/lib/composition-helpers';
 
 export async function GET(
   request: NextRequest,
@@ -15,8 +15,8 @@ export async function GET(
       );
     }
 
-    const positionModule = getPositionModule();
-    const quoteService = getQuoteService();
+    const positionModule = createPositionModule();
+    const quoteService = createQuotesService();
 
     const position = positionModule.getPositionById(id);
     if (!position) {

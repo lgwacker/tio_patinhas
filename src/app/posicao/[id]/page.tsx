@@ -1,6 +1,6 @@
 import { PositionDetailClient } from './PositionDetailClient';
-import { getPositionModule, getQuoteService } from '@/lib/database';
 import { notFound } from 'next/navigation';
+import { createPositionModule, createQuotesService } from '@/lib/composition-helpers';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,8 +15,8 @@ export default async function PositionPage({ params }: PositionPageProps) {
     notFound();
   }
 
-  const positionModule = getPositionModule();
-  const quoteService = getQuoteService();
+  const positionModule = createPositionModule();
+  const quoteService = createQuotesService();
 
   // Get position data first to obtain the ticker
   const position = positionModule.getPositionById(id);

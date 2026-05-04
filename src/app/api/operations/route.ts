@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule } from '@/lib/database';
 import { PositionValidationError } from '@/domain/position/PositionModule';
+import { createPositionModule } from '@/lib/composition-helpers';
 import type { CreateOperationInput } from '@/types';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
     const {
       position_id,
       tipo,
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
       valor_total,
     };
 
-    const positionModule = getPositionModule();
+    const positionModule = createPositionModule();
 
     const result = await positionModule.addOperationToPosition(position_id, operation);
 

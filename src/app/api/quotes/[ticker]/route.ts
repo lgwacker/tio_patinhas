@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getQuoteService } from '@/lib/database';
+import { createQuotesService } from '@/lib/composition-helpers';
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +15,7 @@ export async function GET(
       );
     }
 
-    const quotesService = getQuoteService();
+    const quotesService = createQuotesService();
     const result = await quotesService.fetchQuote(ticker);
 
     if (!result.success) {
@@ -74,7 +74,7 @@ export async function POST(
       );
     }
 
-    const quotesService = getQuoteService();
+    const quotesService = createQuotesService();
     const quoteData = quotesService.setManualPrice(ticker, preco);
 
     return NextResponse.json({
