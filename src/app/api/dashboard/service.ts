@@ -6,6 +6,7 @@ import {
   DashboardSummary,
   AssetClassDistribution,
   PositionWithQuote,
+  Quote,
 } from '@/domain/dashboard';
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
@@ -15,6 +16,15 @@ const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   etf: 'ETFs',
   cripto: 'Criptomoedas',
 };
+
+function calculatePercentage(value: number, base: number): number {
+  if (base <= 0) return 0;
+  return (value / base) * 100;
+}
+
+function roundToTwoDecimals(value: number): number {
+  return Number(value.toFixed(2));
+}
 
 export class DashboardService {
   private db: Database.Database;
@@ -42,15 +52,11 @@ export class DashboardService {
 
   private enrichPositionsWithQuotes(positions: Position[]): PositionWithQuote[] {
     return positions.map(position => {
-      // For MVP: use preco_medio as preco_atual if no quote available
-      // In future: fetch from quotes table or external API
       const preco_atual = this.getCurrentPrice(position.ticker) ?? position.preco_medio;
       const valor_atual = position.quantidade * preco_atual;
       const valor_investido = position.quantidade * position.preco_medio;
       const ganho_perda_valor = valor_atual - valor_investido;
-      const ganho_perda_percentual = valor_investido > 0 
-        ? (ganho_perda_valor / valor_investido) * 100 
-        : 0;
+      const ganho_perda_percentual = calculatePercentage(ganho_perda_valor, valor_investido);
 
       return {
         ...position,
@@ -64,9 +70,7 @@ export class DashboardService {
   }
 
   private getCurrentPrice(ticker: string): number | null {
-    // MVP: Check if there's a quote in the database
-    // Future: Integrate with Yahoo Finance API
-    const row = this.db.prepare('SELECT preco FROM quotes WHERE ticker = ?').get(ticker) as { preco: number } | undefined;
+    const row = this.db.prepare('SELECT preco FROM quotes WHERE ticker = ?').get(ticker) as Quote | undefined;
     return row?.preco ?? null;
   }
 
@@ -74,16 +78,14 @@ export class DashboardService {
     const totalValue = positions.reduce((sum, p) => sum + p.valor_atual, 0);
     const totalInvested = positions.reduce((sum, p) => sum + p.valor_investido, 0);
     const totalGainLossValue = totalValue - totalInvested;
-    const totalGainLossPercentage = totalInvested > 0 
-      ? (totalGainLossValue / totalInvested) * 100 
-      : 0;
+    const totalGainLossPercentage = calculatePercentage(totalGainLossValue, totalInvested);
 
     return {
-      totalValue: Number(totalValue.toFixed(2)),
-      totalInvested: Number(totalInvested.toFixed(2)),
+      totalValue: roundToTwoDecimals(totalValue),
+      totalInvested: roundToTwoDecimals(totalInvested),
       totalGainLoss: {
-        value: Number(totalGainLossValue.toFixed(2)),
-        percentage: Number(totalGainLossPercentage.toFixed(2)),
+        value: roundToTwoDecimals(totalGainLossValue),
+        percentage: roundToTwoDecimals(totalGainLossPercentage),
       },
       positionCount: positions.length,
     };
@@ -92,7 +94,6 @@ export class DashboardService {
   private calculateAssetClassDistribution(positions: PositionWithQuote[]): AssetClassDistribution[] {
     const totalValue = positions.reduce((sum, p) => sum + p.valor_atual, 0);
     
-    // Group by asset class
     const grouped = positions.reduce((acc, position) => {
       const classe = position.classe_ativo;
       if (!acc[classe]) {
@@ -103,21 +104,19 @@ export class DashboardService {
       return acc;
     }, {} as Record<AssetClass, { value: number; count: number }>);
 
-    // Convert to array with percentages
     const distribution: AssetClassDistribution[] = Object.entries(grouped).map(([classe, data]) => {
       const assetClass = classe as AssetClass;
-      const percentage = totalValue > 0 ? (data.value / totalValue) * 100 : 0;
+      const percentage = calculatePercentage(data.value, totalValue);
       
       return {
         classe_ativo: assetClass,
         label: ASSET_CLASS_LABELS[assetClass],
-        value: Number(data.value.toFixed(2)),
-        percentage: Number(percentage.toFixed(2)),
+        value: roundToTwoDecimals(data.value),
+        percentage: roundToTwoDecimals(percentage),
         count: data.count,
       };
     });
 
-    // Sort by value descending
     return distribution.sort((a, b) => b.value - a.value);
   }
 }
