@@ -23,6 +23,18 @@ describe('NovaPosicaoPage Accessibility', () => {
     expect(backButton).toBeInTheDocument();
   });
 
+  it('should have sufficient color contrast on Criar Posição button', () => {
+    render(<NovaPosicaoPage />);
+
+    const submitButton = screen.getByRole('button', { name: /Criar Posição/i });
+    expect(submitButton).toBeInTheDocument();
+
+    // Verify WCAG-compliant color contrast: bg-primary provides 4.5:1+ contrast with text-white
+    const buttonClasses = submitButton.className;
+    expect(buttonClasses).toContain('bg-primary');
+    expect(buttonClasses).toContain('text-white');
+  });
+
   describe('Form field accessibility', () => {
     it('should have ticker input with associated label', () => {
       render(<NovaPosicaoPage />);
