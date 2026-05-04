@@ -1,17 +1,64 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
+'use client';
+
+import { useState, useMemo } from 'react';
+import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Plus, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { getDatabaseModule } from '@/lib/database';
+import { AssetClassTabs } from '@/components/carteira/AssetClassTabs';
+import { usePositions } from '@/hooks/usePositions';
 import { formatCurrency } from '@/lib/formatters';
+import type { AssetClass } from '@/types';
+import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
 
 export const dynamic = 'force-dynamic';
 
 export default function CarteiraPage() {
-  const dbModule = getDatabaseModule();
-  const positions = dbModule.getAllPositions();
+  const [activeTab, setActiveTab] = useState<AssetClass>('acao');
+  const { positions, isLoading } = usePositions();
 
-  const totalInvestido = positions.reduce((acc, pos) => acc + (pos.quantidade * pos.preco_medio), 0);
+  // Calculate counts for each asset class
+  const assetClassCounts = useMemo(() => {
+    const counts: Record<AssetClass, number> = {
+      acao: 0,
+      fii: 0,
+      renda_fixa: 0,
+      etf: 0,
+      cripto: 0,
+    };
+    positions.forEach((pos) => {
+      counts[pos.classe_ativo]++;
+    });
+    return counts;
+  }, [positions]);
+
+  // Filter positions by active tab
+  const filteredPositions = useMemo(() => {
+    return positions.filter((pos) => pos.classe_ativo === activeTab);
+  }, [positions, activeTab]);
+
+  const totalInvestido = positions.reduce(
+    (acc, pos) => acc + pos.quantidade * pos.preco_medio,
+    0
+  );
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">Carteira</h1>
+            <p className="text-text-secondary">Carregando...</p>
+          </div>
+        </div>
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 bg-surface rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -30,6 +77,12 @@ export default function CarteiraPage() {
         </Link>
       </div>
 
+      <AssetClassTabs 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab} 
+        counts={assetClassCounts}
+      />
+
       {positions.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
@@ -44,9 +97,15 @@ export default function CarteiraPage() {
             </Link>
           </CardContent>
         </Card>
+      ) : filteredPositions.length === 0 ? (
+        <div className="py-12 text-center">
+          <p className="text-text-secondary">
+            Nenhuma posição encontrada nesta classe de ativo.
+          </p>
+        </div>
       ) : (
         <div className="grid gap-4">
-          {positions.map((position) => {
+          {filteredPositions.map((position) => {
             const valorInvestido = position.quantidade * position.preco_medio;
             const quantidadeLabel = position.quantidade === 1 ? 'unidade' : 'unidades';
 
