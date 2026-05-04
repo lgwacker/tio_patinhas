@@ -6,7 +6,7 @@ import { GET } from '../route';
 import { NextRequest } from 'next/server';
 import { createTestPositionModule, createTestQuotesService } from '@/lib/test-helpers';
 import { PositionModule } from '@/domain/position/PositionModule';
-import { QuotesService } from '@/domain/quotes';
+import { QuotesService } from '@/domain/quotes/QuotesService';
 
 describe('GET /api/positions/[id]', () => {
   let positionModule: PositionModule;

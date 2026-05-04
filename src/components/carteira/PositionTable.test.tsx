@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { PositionTable } from '@/components/carteira/PositionTable';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 
 const mockPositions: PositionWithValues[] = [
   {

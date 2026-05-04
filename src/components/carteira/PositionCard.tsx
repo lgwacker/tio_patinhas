@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/Card';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 import { formatCurrency, formatQuantity, formatPercentageAbsolute } from '@/lib/formatters';
 import { GainLossCurrency, GainLossIndicator } from '@/components/ui/GainLossIndicator';
 import { ProgressBar } from '@/components/ui/ProgressBar';

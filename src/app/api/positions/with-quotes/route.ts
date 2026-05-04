@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { PositionModule } from '@/domain/position/PositionModule';
-import { enrichPositionsWithCalculatedValues } from '@/lib/position-helpers';
+import { CarteiraCalculator } from '@/domain/calculator/CarteiraCalculator';
 import { createDatabase } from '@/lib/database-helpers';
 import type { Position } from '@/types';
 
@@ -28,7 +28,7 @@ export async function GET() {
 
     const positions: Position[] = positionModule.getAllPositions();
     const quotes = getAllQuotes(db);
-    const positionsWithValues = enrichPositionsWithCalculatedValues(positions, quotes);
+    const positionsWithValues = CarteiraCalculator.enrichPositions(positions, quotes);
 
     return NextResponse.json({ positions: positionsWithValues });
   } catch (error) {

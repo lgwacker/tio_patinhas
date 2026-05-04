@@ -1,7 +1,8 @@
 import Database from 'better-sqlite3';
 import { QuoteData, QuoteResult, QuoteResolver } from './types';
 import { QuoteCache } from './QuoteCache';
-import { YahooFinanceAdapter, BrapiAdapter } from './adapters';
+import { YahooFinanceAdapter } from './adapters/YahooFinanceAdapter';
+import { BrapiAdapter } from './adapters/BrapiAdapter';
 
 export interface QuotesServiceConfig {
   cacheTtlMinutes: number;

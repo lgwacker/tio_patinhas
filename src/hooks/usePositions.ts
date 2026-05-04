@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 
 interface UsePositionsReturn {
   positions: PositionWithValues[];

@@ -1,6 +1,6 @@
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { PositionModule } from '@/domain/position/PositionModule';
-import { QuotesService } from '@/domain/quotes';
+import { QuotesService } from '@/domain/quotes/QuotesService';
 import { createDatabase } from './database-helpers';
 
 /**

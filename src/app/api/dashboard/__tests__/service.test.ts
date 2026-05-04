@@ -1,7 +1,7 @@
 import Database from 'better-sqlite3';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { DatabaseModule } from '@/data/DatabaseModule';
-import { QuoteResolver } from '@/domain/quotes';
+import { QuoteResolver } from '@/domain/quotes/types';
 import { DashboardService } from '../service';
 
 class StubQuoteResolver implements QuoteResolver {

@@ -1,13 +1,6 @@
 import { DatabaseModule } from '@/data/DatabaseModule';
-import { Position, AssetClass, Operation } from '@/types';
-import { QuoteResolver } from '@/domain/quotes';
-import {
-  DashboardData,
-  DashboardSummary,
-  AssetClassDistribution,
-  PositionWithQuote,
-  RecentOperation,
-} from '@/domain/dashboard';
+import { Position, AssetClass, DashboardData, DashboardSummary, AssetClassDistribution, PositionWithQuote, RecentOperation } from '@/types';
+import { QuoteResolver } from '@/domain/quotes/types';
 
 const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   acao: 'Ações',

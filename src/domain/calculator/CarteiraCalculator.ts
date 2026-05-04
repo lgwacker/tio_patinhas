@@ -1,4 +1,5 @@
 import { Operacao, GanhoPerda } from '../types';
+import type { Position, PositionWithValues } from '@/types';
 
 export interface PositionSnapshot {
   quantidade: number;
@@ -105,6 +106,42 @@ export class CarteiraCalculator {
     const percentual = (valor / valorInvestido) * 100;
 
     return { valor, percentual };
+  }
+
+  static enrichPositions(
+    positions: Position[],
+    quotes?: Record<string, number>
+  ): PositionWithValues[] {
+    if (positions.length === 0) return [];
+
+    const totalValue = positions.reduce((sum, pos) => {
+      const precoAtual = quotes?.[pos.ticker] ?? pos.preco_medio;
+      return sum + pos.quantidade * precoAtual;
+    }, 0);
+
+    return positions.map((position) => {
+      const precoAtual = quotes?.[position.ticker] ?? position.preco_medio;
+      const valorInvestido = position.quantidade * position.preco_medio;
+      const valorAtual = position.quantidade * precoAtual;
+      const ganhoValor = valorAtual - valorInvestido;
+      const ganhoPercentual = this.calculatePercentage(ganhoValor, valorInvestido);
+      const percentualCarteira = this.calculatePercentage(valorAtual, totalValue);
+
+      return {
+        ...position,
+        preco_atual: precoAtual,
+        valor_investido: this.roundToTwoDecimals(valorInvestido),
+        valor_atual: this.roundToTwoDecimals(valorAtual),
+        ganho_valor: this.roundToTwoDecimals(ganhoValor),
+        ganho_percentual: this.roundToTwoDecimals(ganhoPercentual),
+        percentual_carteira: this.roundToTwoDecimals(percentualCarteira),
+      };
+    });
+  }
+
+  private static calculatePercentage(value: number, base: number): number {
+    if (base <= 0) return 0;
+    return (value / base) * 100;
   }
 
   private static roundToTwoDecimals(value: number): number {

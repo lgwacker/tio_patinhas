@@ -10,7 +10,7 @@ import { PositionList } from '@/components/carteira/PositionList';
 import { usePositions } from '@/hooks/usePositions';
 import { formatCurrency } from '@/lib/formatters';
 import type { AssetClass } from '@/types';
-import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
+import { ASSET_CLASS_TABS } from '@/types';
 
 export const dynamic = 'force-dynamic';
 

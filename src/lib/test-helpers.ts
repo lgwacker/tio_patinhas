@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { MigrationRunner } from '@/data/MigrationRunner';
 import { PositionModule } from '@/domain/position/PositionModule';
-import { QuotesService } from '@/domain/quotes';
+import { QuotesService } from '@/domain/quotes/QuotesService';
 
 /**
  * Test helper that creates a fresh in-memory database setup.

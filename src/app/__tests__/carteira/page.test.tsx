@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import CarteiraPage from '@/app/carteira/page';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 
 // Mock next/link
 jest.mock('next/link', () => {

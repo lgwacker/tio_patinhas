@@ -13,10 +13,10 @@ import {
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { DashboardData, AssetClassDistribution, RecentOperation } from '@/domain/dashboard';
+import type { DashboardData, AssetClassDistribution, RecentOperation } from '@/types';
 import Link from 'next/link';
 import { formatCurrency, formatDate } from '@/lib/formatters';
-import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
+
 
 function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
@@ -270,7 +270,7 @@ export default function DashboardPage() {
                         </Link>
                       </td>
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${op.tipo === 'compra' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
                           {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                         </span>
                       </td>

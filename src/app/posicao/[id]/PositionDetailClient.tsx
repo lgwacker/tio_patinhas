@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { ArrowLeft, TrendingUp, TrendingDown, Plus, Calendar, DollarSign, Edit2, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { formatCurrency, formatDate, calcularPrecoUnitario } from '@/lib/formatters';
-import { getOperationTypeBadgeClasses, getProfitLossColorClasses } from '@/lib/ui-helpers';
+
 import type { Position, Operation } from '@/types';
 
 interface PositionDetailClientProps {
@@ -146,7 +146,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
   };
 
   const isProfit = position.ganhoValor >= 0;
-  const profitLossClasses = getProfitLossColorClasses(isProfit);
+  const profitLossClasses = isProfit ? 'text-profit' : 'text-loss';
   const ganhoSign = isProfit ? '+' : '';
 
   return (
@@ -408,7 +408,7 @@ export function PositionDetailClient({ position, operations: initialOperations }
                     <tr key={op.id} className="border-b border-border last:border-0">
                       <td className="py-3 px-4 text-text-primary">{formatDate(op.data)}</td>
                       <td className="py-3 px-4">
-                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${op.tipo === 'compra' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
                           {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                         </span>
                       </td>

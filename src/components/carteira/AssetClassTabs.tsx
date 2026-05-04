@@ -1,7 +1,7 @@
 'use client';
 
 import type { AssetClass } from '@/types';
-import { ASSET_CLASS_TABS } from '@/lib/carteira-types';
+import { ASSET_CLASS_TABS } from '@/types';
 
 interface AssetClassTabsProps {
   activeTab: AssetClass;

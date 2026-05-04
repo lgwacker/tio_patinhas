@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 import { PositionTable } from './PositionTable';
 import { PositionCardList } from './PositionCard';
 

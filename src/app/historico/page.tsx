@@ -5,7 +5,7 @@ import { TrendingDown, History } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { formatCurrency, formatDate } from '@/lib/formatters';
-import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
+
 import { Operation, Position } from '@/types';
 
 interface HistoricoData {
@@ -131,7 +131,7 @@ export default function HistoricoPage() {
                         <td className="py-3 px-4 text-text-primary">{formatDate(op.data)}</td>
                         <td className="py-3 px-4 text-text-primary">{position?.ticker || '---'}</td>
                         <td className="py-3 px-4">
-                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
+                          <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${op.tipo === 'compra' ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
                             {op.tipo === 'compra' ? 'Compra' : 'Venda'}
                           </span>
                         </td>

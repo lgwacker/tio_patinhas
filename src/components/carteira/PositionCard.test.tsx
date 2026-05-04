@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { PositionCard, PositionCardList } from '@/components/carteira/PositionCard';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 
 // Mock next/link
 jest.mock('next/link', () => {

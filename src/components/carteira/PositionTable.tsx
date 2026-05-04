@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import type { PositionWithValues } from '@/lib/carteira-types';
+import type { PositionWithValues } from '@/types';
 import { formatCurrency, formatQuantity } from '@/lib/formatters';
 import { GainLossCurrency, GainLossIndicator } from '@/components/ui/GainLossIndicator';
 import { ProgressBar } from '@/components/ui/ProgressBar';
