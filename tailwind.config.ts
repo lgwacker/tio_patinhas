@@ -12,7 +12,7 @@ const config: Config = {
         // Tio Patinhas Design System
         background: "#0F172A",
         surface: "#1E293B",
-        primary: "#3B82F6",
+        primary: "#1D4ED8",
         profit: "#F59E0B",     // Dourado para lucros
         loss: "#EF4444",       // Vermelho para perdas
         "text-primary": "#F8FAFC",
