@@ -114,13 +114,16 @@ export class CarteiraCalculator {
   ): PositionWithValues[] {
     if (positions.length === 0) return [];
 
+    const resolvePrice = (ticker: string, precoMedio: number): number =>
+      quotes?.[ticker] ?? precoMedio;
+
     const totalValue = positions.reduce((sum, pos) => {
-      const precoAtual = quotes?.[pos.ticker] ?? pos.preco_medio;
+      const precoAtual = resolvePrice(pos.ticker, pos.preco_medio);
       return sum + pos.quantidade * precoAtual;
     }, 0);
 
     return positions.map((position) => {
-      const precoAtual = quotes?.[position.ticker] ?? position.preco_medio;
+      const precoAtual = resolvePrice(position.ticker, position.preco_medio);
       const valorInvestido = position.quantidade * position.preco_medio;
       const valorAtual = position.quantidade * precoAtual;
       const ganhoValor = valorAtual - valorInvestido;

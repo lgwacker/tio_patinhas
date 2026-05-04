@@ -2,14 +2,24 @@ import { DatabaseModule } from '@/data/DatabaseModule';
 import { Position, AssetClass, DashboardData, DashboardSummary, AssetClassDistribution, PositionWithQuote, RecentOperation } from '@/types';
 import { QuoteResolver } from '@/domain/quotes/types';
 
-const ASSET_CLASS_LABELS: Record<string, string> = {
+const ASSET_CLASS_LABELS: Record<AssetClass, string> = {
   acao: 'Ações',
   fii: 'Fundos Imobiliários',
-  fundo_imobiliario: 'Fundos Imobiliários',
   renda_fixa: 'Renda Fixa',
   etf: 'ETFs',
   cripto: 'Criptomoedas',
 };
+
+const LEGACY_LABELS: Record<string, string> = {
+  fundo_imobiliario: 'Fundos Imobiliários',
+};
+
+function getAssetClassLabel(classe: string): string {
+  if (classe in ASSET_CLASS_LABELS) {
+    return ASSET_CLASS_LABELS[classe as AssetClass];
+  }
+  return LEGACY_LABELS[classe] ?? classe;
+}
 
 function calculatePercentage(value: number, base: number): number {
   if (base <= 0) return 0;
@@ -110,15 +120,14 @@ export class DashboardService {
       acc[classe].value += position.valor_atual;
       acc[classe].count += 1;
       return acc;
-    }, {} as Record<AssetClass, { value: number; count: number }>);
+    }, {} as Record<string, { value: number; count: number }>);
 
     const distribution: AssetClassDistribution[] = Object.entries(grouped).map(([classe, data]) => {
-      const assetClass = classe as AssetClass;
       const percentage = calculatePercentage(data.value, totalValue);
       
       return {
-        classe_ativo: assetClass,
-        label: ASSET_CLASS_LABELS[assetClass],
+        classe_ativo: classe as AssetClass,
+        label: getAssetClassLabel(classe),
         value: roundToTwoDecimals(data.value),
         percentage: roundToTwoDecimals(percentage),
         count: data.count,
