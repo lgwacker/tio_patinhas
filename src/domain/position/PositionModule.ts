@@ -1,5 +1,5 @@
-import { Operacao, Posicao, TipoOperacao } from '../types';
-import { calculateAveragePrice } from '../calculator';
+import { Operacao, TipoOperacao } from '../types';
+import { CarteiraCalculator } from '../calculator/CarteiraCalculator';
 import { DatabaseModule } from '@/data/DatabaseModule';
 import { VALID_ASSET_CLASSES } from '@/lib/constants';
 import type { CreateOperationInput, Operation, Position, CreatePositionInput } from '@/types';
@@ -166,20 +166,13 @@ export class PositionModule {
       valorTotal: op.valor_total,
     }));
 
-    // Calculate new average price and quantity
-    const novoPrecoMedio = calculateAveragePrice(domainOperations);
-    const quantidadeTotal = domainOperations.reduce((acc, op) => {
-      if (op.tipo === 'COMPRA') {
-        return acc + op.quantidade;
-      } else {
-        return acc - op.quantidade;
-      }
-    }, 0);
+    // Use CarteiraCalculator for all position calculations
+    const snapshot = CarteiraCalculator.calculateSnapshot(domainOperations);
 
     // Update position
     const updatedPosition = this.db.updatePosition(positionId, {
-      quantidade: quantidadeTotal,
-      preco_medio: novoPrecoMedio,
+      quantidade: snapshot.quantidade,
+      preco_medio: snapshot.precoMedio,
     });
 
     if (!updatedPosition) {
@@ -217,17 +210,23 @@ export class PositionModule {
     const positionWithOps = this.getPositionWithOperations(positionId);
     if (!positionWithOps) return null;
 
-    const valorInvestido = positionWithOps.quantidade * positionWithOps.preco_medio;
-    const valorAtual = positionWithOps.quantidade * precoAtual;
-    const ganhoValor = valorAtual - valorInvestido;
-    const ganhoPercentual = valorInvestido > 0 ? (ganhoValor / valorInvestido) * 100 : 0;
+    // Convert operations to domain types for CarteiraCalculator
+    const domainOperations: Operacao[] = positionWithOps.operations.map(op => ({
+      data: new Date(op.data),
+      tipo: op.tipo.toUpperCase() as TipoOperacao,
+      quantidade: op.quantidade,
+      valorTotal: op.valor_total,
+    }));
+
+    // Use CarteiraCalculator for all position calculations
+    const snapshot = CarteiraCalculator.calculateSnapshot(domainOperations, precoAtual);
 
     return {
       ...positionWithOps,
-      valorInvestido: Number(valorInvestido.toFixed(2)),
-      valorAtual: Number(valorAtual.toFixed(2)),
-      ganhoValor: Number(ganhoValor.toFixed(2)),
-      ganhoPercentual: Number(ganhoPercentual.toFixed(2)),
+      valorInvestido: snapshot.valorInvestido,
+      valorAtual: snapshot.valorAtual,
+      ganhoValor: snapshot.ganhoPerda.valor,
+      ganhoPercentual: snapshot.ganhoPerda.percentual,
       precoAtual,
     };
   }
