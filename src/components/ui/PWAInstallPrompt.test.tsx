@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 // Mock localStorage
@@ -32,7 +32,9 @@ describe('PWAInstallPrompt', () => {
     Object.defineProperty(event, 'prompt', { value: jest.fn().mockResolvedValue(undefined) });
     Object.defineProperty(event, 'userChoice', { value: Promise.resolve({ outcome: 'accepted' }) });
 
-    window.dispatchEvent(event);
+    act(() => {
+      window.dispatchEvent(event);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Instalar Tio Patinhas')).toBeInTheDocument();
@@ -47,7 +49,9 @@ describe('PWAInstallPrompt', () => {
     Object.defineProperty(event, 'prompt', { value: jest.fn() });
     Object.defineProperty(event, 'userChoice', { value: Promise.resolve({ outcome: 'dismissed' }) });
 
-    window.dispatchEvent(event);
+    act(() => {
+      window.dispatchEvent(event);
+    });
 
     await waitFor(() => {
       expect(screen.getByLabelText('Fechar')).toBeInTheDocument();
@@ -62,7 +66,9 @@ describe('PWAInstallPrompt', () => {
     Object.defineProperty(event, 'prompt', { value: jest.fn() });
     Object.defineProperty(event, 'userChoice', { value: Promise.resolve({ outcome: 'dismissed' }) });
 
-    window.dispatchEvent(event);
+    act(() => {
+      window.dispatchEvent(event);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Instalar Tio Patinhas')).toBeInTheDocument();
@@ -83,7 +89,9 @@ describe('PWAInstallPrompt', () => {
     Object.defineProperty(event, 'prompt', { value: jest.fn() });
     Object.defineProperty(event, 'userChoice', { value: Promise.resolve({ outcome: 'dismissed' }) });
 
-    window.dispatchEvent(event);
+    act(() => {
+      window.dispatchEvent(event);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Instalar Tio Patinhas')).toBeInTheDocument();

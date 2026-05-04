@@ -25,9 +25,16 @@ function isRunningAsStandalone(): boolean {
   return window.matchMedia('(display-mode: standalone)').matches;
 }
 
+interface InstallState {
+  prompt: BeforeInstallPromptEvent | null;
+  show: boolean;
+}
+
 export function PWAInstallPrompt() {
-  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
+  const [installState, setInstallState] = useState<InstallState>({
+    prompt: null,
+    show: false,
+  });
 
   useEffect(() => {
     if (wasRecentlyDismissed() || isRunningAsStandalone()) {
@@ -36,13 +43,14 @@ export function PWAInstallPrompt() {
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setInstallPrompt(e as BeforeInstallPromptEvent);
-      setShowPrompt(true);
+      setInstallState({
+        prompt: e as BeforeInstallPromptEvent,
+        show: true,
+      });
     };
 
     const handleAppInstalled = () => {
-      setShowPrompt(false);
-      setInstallPrompt(null);
+      setInstallState({ prompt: null, show: false });
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
@@ -55,10 +63,10 @@ export function PWAInstallPrompt() {
   }, []);
 
   const handleInstall = async () => {
-    if (!installPrompt) return;
+    if (!installState.prompt) return;
 
-    await installPrompt.prompt();
-    const result = await installPrompt.userChoice;
+    await installState.prompt.prompt();
+    const result = await installState.prompt.userChoice;
 
     if (result.outcome === 'accepted') {
       console.log('[PWA] User accepted the install prompt');
@@ -66,16 +74,15 @@ export function PWAInstallPrompt() {
       console.log('[PWA] User dismissed the install prompt');
     }
 
-    setInstallPrompt(null);
-    setShowPrompt(false);
+    setInstallState({ prompt: null, show: false });
   };
 
   const handleDismiss = () => {
-    setShowPrompt(false);
+    setInstallState({ prompt: null, show: false });
     localStorage.setItem(DISMISSAL_KEY, Date.now().toString());
   };
 
-  if (!showPrompt) {
+  if (!installState.show) {
     return null;
   }
 
