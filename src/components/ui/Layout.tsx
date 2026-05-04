@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { 
   LayoutDashboard, 
@@ -9,7 +9,8 @@ import {
   Settings, 
   Menu,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  X
 } from 'lucide-react';
 import { FAB } from './FAB';
 import { PWAInstallPrompt } from './PWAInstallPrompt';
@@ -29,8 +30,8 @@ const navigation = [
   { name: 'Configurações', href: '/configuracoes', icon: Settings },
 ];
 
-export function Layout({ 
-  children, 
+export function Layout({
+  children,
   showFab = false,
   fabHref,
   fabLabel,
@@ -38,6 +39,20 @@ export function Layout({
 }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.classList.add('overflow-hidden');
+    } else {
+      document.body.classList.remove('overflow-hidden');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('overflow-hidden');
+    };
+  }, [isMobileMenuOpen]);
 
   const sidebarWidth = isCollapsed ? 'w-16' : 'w-64';
   const mobilePosition = isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0';
@@ -65,7 +80,7 @@ export function Layout({
                 Tio Patinhas
               </span>
             )}
-            
+
             {/* Desktop toggle button */}
             {!isCollapsed && (
               <button
@@ -85,6 +100,17 @@ export function Layout({
                 <ChevronRight size={18} />
               </button>
             )}
+
+            {/* Mobile close button - only visible when menu is open on mobile */}
+            {isMobileMenuOpen && (
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="lg:hidden p-1.5 rounded-md hover:bg-border text-text-secondary"
+                aria-label="Close menu"
+              >
+                <X size={18} />
+              </button>
+            )}
           </div>
 
           {/* Navigation */}
@@ -92,13 +118,19 @@ export function Layout({
             {navigation.map((item) => {
               const Icon = item.icon;
               const linkClasses = `flex items-center gap-3 px-3 py-2.5 rounded-md text-text-secondary hover:text-text-primary hover:bg-border transition-colors group ${isCollapsed ? 'justify-center' : ''}`;
-              
+
               return (
                 <Link
                   key={item.name}
                   href={item.href}
                   className={linkClasses}
                   title={isCollapsed ? item.name : undefined}
+                  onClick={() => {
+                    // Close mobile menu when navigating
+                    if (isMobileMenuOpen) {
+                      setIsMobileMenuOpen(false);
+                    }
+                  }}
                 >
                   <Icon size={20} className="shrink-0" />
                   {!isCollapsed && (
