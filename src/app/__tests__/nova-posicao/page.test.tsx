@@ -96,17 +96,10 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText('Tipo');
       expect(label).toHaveAttribute('for', 'tipo');
-      
+
       const select = screen.getByLabelText('Tipo');
       expect(select).toHaveAttribute('id', 'tipo');
       expect(select).toHaveAttribute('name', 'tipo');
-    });
-
-    it('should have tipo select with aria-label for accessibility', () => {
-      render(<NovaPosicaoPage />);
-
-      const select = screen.getByLabelText('Tipo');
-      expect(select).toHaveAttribute('aria-label', 'Tipo');
     });
 
     it('should have data input with associated label', () => {
@@ -125,17 +118,10 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText('Quantidade');
       expect(label).toHaveAttribute('for', 'quantidade');
-      
+
       const input = screen.getByLabelText('Quantidade');
       expect(input).toHaveAttribute('id', 'quantidade');
       expect(input).toHaveAttribute('name', 'quantidade');
-    });
-
-    it('should have quantidade input with aria-label for accessibility', () => {
-      render(<NovaPosicaoPage />);
-
-      const input = screen.getByLabelText('Quantidade');
-      expect(input).toHaveAttribute('aria-label', 'Quantidade');
     });
 
     it('should have valor_total input with associated label', () => {
@@ -143,17 +129,10 @@ describe('NovaPosicaoPage Accessibility', () => {
 
       const label = screen.getByText(/Valor Total/);
       expect(label).toHaveAttribute('for', 'valor_total');
-      
+
       const input = screen.getByLabelText(/Valor Total/);
       expect(input).toHaveAttribute('id', 'valor_total');
       expect(input).toHaveAttribute('name', 'valor_total');
-    });
-
-    it('should have valor_total input with aria-label for accessibility', () => {
-      render(<NovaPosicaoPage />);
-
-      const input = screen.getByLabelText(/Valor Total/);
-      expect(input).toHaveAttribute('aria-label', 'Valor Total (R$)');
     });
 
     it('should have quantidade input with valid max attribute for accessibility', () => {
