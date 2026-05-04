@@ -7,25 +7,19 @@ import {
   Wallet, 
   PieChart, 
   ArrowRight,
-  Activity
+  Activity,
+  Plus,
+  History
 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { DashboardData, AssetClassDistribution, RecentOperation } from '@/domain/dashboard';
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(value);
-}
+import Link from 'next/link';
+import { formatCurrency, formatDate } from '@/lib/formatters';
+import { getOperationTypeBadgeClasses } from '@/lib/ui-helpers';
 
 function formatPercentage(value: number): string {
   return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`;
-}
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString('pt-BR');
 }
 
 export default function DashboardPage() {
@@ -86,55 +80,70 @@ export default function DashboardPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
-        <a href="/carteira">
-          <Button variant="secondary" className="gap-2">
-            Ver Carteira
-            <ArrowRight size={16} />
-          </Button>
-        </a>
+        <div>
+          <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
+          <p className="text-text-secondary">Visão geral da sua carteira</p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/nova-posicao">
+            <Button>
+              <Plus size={20} className="mr-2" />
+              Nova Posição
+            </Button>
+          </Link>
+          <Link href="/carteira">
+            <Button variant="secondary" className="gap-2">
+              Ver Carteira
+              <ArrowRight size={16} />
+            </Button>
+          </Link>
+        </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total da Carteira */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Wallet size={18} className="text-primary" />
-              Total da Carteira
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-text-primary">
-              {formatCurrency(summary.totalValue)}
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-primary/20 rounded-lg">
+                <Wallet size={24} className="text-primary" />
+              </div>
+              <div>
+                <p className="text-text-secondary text-sm">Total da Carteira</p>
+                <p className="text-2xl font-bold text-text-primary">
+                  {formatCurrency(summary.totalValue)}
+                </p>
+              </div>
             </div>
-            <div className={`flex items-center gap-1 mt-2 text-sm ${gainLossColorClass}`}>
+            <div className={`flex items-center gap-1 mt-3 text-sm ${gainLossColorClass}`}>
               <TrendIcon size={16} />
               <span>{formatPercentage(summary.totalGainLoss.percentage)}</span>
               <span className="text-text-secondary ml-1">
                 ({formatCurrency(summary.totalGainLoss.value)})
               </span>
             </div>
-            <div className="text-xs text-text-secondary mt-2">
-              {summary.positionCount} posições
+            <div className="text-xs text-text-secondary mt-1">
+              {summary.positionCount} {summary.positionCount === 1 ? 'posição' : 'posições'}
             </div>
           </CardContent>
         </Card>
 
         {/* Valor Investido */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <Activity size={18} className="text-primary" />
-              Valor Investido
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-text-primary">
-              {formatCurrency(summary.totalInvested)}
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-surface rounded-lg">
+                <Activity size={24} className="text-text-secondary" />
+              </div>
+              <div>
+                <p className="text-text-secondary text-sm">Valor Investido</p>
+                <p className="text-2xl font-bold text-text-primary">
+                  {formatCurrency(summary.totalInvested)}
+                </p>
+              </div>
             </div>
-            <div className="text-sm text-text-secondary mt-2">
+            <div className="text-xs text-text-secondary mt-4">
               Total aplicado
             </div>
           </CardContent>
@@ -142,17 +151,19 @@ export default function DashboardPage() {
 
         {/* Ganho/Perda Total */}
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
-              <TrendIcon size={18} className={gainLossColorClass} />
-              Ganho Total
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${gainLossColorClass}`}>
-              {formatCurrency(summary.totalGainLoss.value)}
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className={`p-3 rounded-lg ${isPositive ? 'bg-profit/20' : 'bg-loss/20'}`}>
+                <TrendIcon size={24} className={gainLossColorClass} />
+              </div>
+              <div>
+                <p className="text-text-secondary text-sm">Ganho Total</p>
+                <p className={`text-2xl font-bold ${gainLossColorClass}`}>
+                  {formatCurrency(summary.totalGainLoss.value)}
+                </p>
+              </div>
             </div>
-            <div className={`text-sm mt-2 ${gainLossColorClass}`}>
+            <div className={`text-sm mt-3 ${gainLossColorClass}`}>
               {formatPercentage(summary.totalGainLoss.percentage)}
             </div>
           </CardContent>
@@ -202,7 +213,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
-            <Activity size={18} className="text-primary" />
+            <History size={18} className="text-primary" />
             Últimas Operações
           </CardTitle>
         </CardHeader>
@@ -212,52 +223,69 @@ export default function DashboardPage() {
               Nenhuma operação registrada. Adicione operações na carteira.
             </p>
           ) : (
-            <div className="space-y-3">
-              {recentOperations.map((operation) => {
-                const isPurchase = operation.tipo === 'compra';
-                const operationColor = isPurchase ? 'bg-profit' : 'bg-loss';
-                const operationLabel = isPurchase ? 'Compra' : 'Venda';
-                
-                return (
-                  <div
-                    key={operation.id}
-                    className="flex items-center justify-between p-3 bg-surface rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${operationColor}`} />
-                      <div>
-                        <div className="font-medium text-text-primary">
-                          {operationLabel} de {operation.ticker}
-                        </div>
-                        <div className="text-sm text-text-secondary">
-                          {operation.quantidade} unidades • {formatDate(operation.data)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-text-primary">
-                        {formatCurrency(operation.valor_total)}
-                      </div>
-                      <div className="text-xs text-text-secondary">
-                        {formatCurrency(operation.preco_unitario)}/un
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Data</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Ticker</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">Tipo</th>
+                    <th className="text-right py-3 px-4 text-sm font-medium text-text-secondary">Quantidade</th>
+                    <th className="text-right py-3 px-4 text-sm font-medium text-text-secondary">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentOperations.map((op) => (
+                    <tr key={op.id} className="border-b border-border last:border-0">
+                      <td className="py-3 px-4 text-text-primary">{formatDate(op.data)}</td>
+                      <td className="py-3 px-4 text-text-primary">
+                        <Link href={`/posicao/${op.position_id}`} className="text-primary hover:underline">
+                          {op.ticker}
+                        </Link>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getOperationTypeBadgeClasses(op.tipo)}`}>
+                          {op.tipo === 'compra' ? 'Compra' : 'Venda'}
+                        </span>
+                      </td>
+                      <td className="py-3 px-4 text-text-primary text-right">{op.quantidade}</td>
+                      <td className="py-3 px-4 text-text-primary text-right">
+                        {formatCurrency(op.valor_total)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
           
           {recentOperations.length > 0 && (
-            <a href="/historico" className="block mt-4">
+            <Link href="/historico" className="block mt-4">
               <Button variant="ghost" className="w-full gap-2">
                 Ver Histórico Completo
                 <ArrowRight size={16} />
               </Button>
-            </a>
+            </Link>
           )}
         </CardContent>
       </Card>
+
+      {/* Empty State */}
+      {summary.positionCount === 0 && (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <p className="text-text-secondary mb-4">
+              Bem-vindo ao Tio Patinhas! Comece adicionando sua primeira posição.
+            </p>
+            <Link href="/nova-posicao">
+              <Button size="lg">
+                <Plus size={20} className="mr-2" />
+                Adicionar Primeira Posição
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

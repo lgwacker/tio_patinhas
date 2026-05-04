@@ -1,5 +1,5 @@
-import { Layout } from '@/components/ui/Layout';
 import './globals.css';
+import { Layout } from '@/components/ui/Layout';
 
 export const metadata = {
   title: 'Tio Patinhas - Gestão de Investimentos',
