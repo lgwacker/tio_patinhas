@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule } from '@/lib/database';
-import { PositionValidationError } from '@/domain/position/PositionModule';
+import { DatabaseModule } from '@/data/DatabaseModule';
+import { PositionModule, PositionValidationError } from '@/domain/position/PositionModule';
+import { createDatabase } from '@/lib/database-helpers';
 import type { CreateOperationInput } from '@/types';
+
+function createPositionModule(): PositionModule {
+  const db = createDatabase();
+  const dbModule = new DatabaseModule(db);
+  return new PositionModule(dbModule);
+}
 
 export async function GET() {
   try {
-    const positionModule = getPositionModule();
+    const positionModule = createPositionModule();
     const positions = positionModule.getAllPositions();
     return NextResponse.json({ positions });
   } catch (error) {
@@ -20,7 +27,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
+
     const {
       ticker,
       nome,
@@ -30,7 +37,7 @@ export async function POST(request: NextRequest) {
       operation,
     } = body;
 
-    const positionModule = getPositionModule();
+    const positionModule = createPositionModule();
 
     const result = await positionModule.createPositionWithFirstOperation(
       ticker,

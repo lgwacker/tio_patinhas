@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
-import { getDatabaseModule } from '@/lib/database';
+import { DatabaseModule } from '@/data/DatabaseModule';
+import { createDatabase } from '@/lib/database-helpers';
 
 export async function GET() {
   try {
-    const dbModule = getDatabaseModule();
+    const db = createDatabase();
+    const dbModule = new DatabaseModule(db);
     const operations = dbModule.getAllOperations();
     const positions = dbModule.getAllPositions();
 

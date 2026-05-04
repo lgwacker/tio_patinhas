@@ -1,5 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPositionModule, getQuoteService } from '@/lib/database';
+import { DatabaseModule } from '@/data/DatabaseModule';
+import { PositionModule } from '@/domain/position/PositionModule';
+import { QuotesService } from '@/domain/quotes';
+import { createDatabase } from '@/lib/database-helpers';
+
+function createPositionModule(): PositionModule {
+  const db = createDatabase();
+  const dbModule = new DatabaseModule(db);
+  return new PositionModule(dbModule);
+}
+
+function createQuotesService(): QuotesService {
+  const db = createDatabase();
+  return new QuotesService(db, { cacheTtlMinutes: 15 });
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,8 +29,8 @@ export async function GET(
       );
     }
 
-    const positionModule = getPositionModule();
-    const quoteService = getQuoteService();
+    const positionModule = createPositionModule();
+    const quoteService = createQuotesService();
 
     const position = positionModule.getPositionById(id);
     if (!position) {

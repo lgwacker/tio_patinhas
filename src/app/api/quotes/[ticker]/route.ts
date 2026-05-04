@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getQuoteService } from '@/lib/database';
+import { QuotesService } from '@/domain/quotes';
+import { createDatabase } from '@/lib/database-helpers';
+
+function createQuotesService(): QuotesService {
+  const db = createDatabase();
+  return new QuotesService(db, { cacheTtlMinutes: 15 });
+}
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +21,7 @@ export async function GET(
       );
     }
 
-    const quotesService = getQuoteService();
+    const quotesService = createQuotesService();
     const result = await quotesService.fetchQuote(ticker);
 
     if (!result.success) {
@@ -74,7 +80,7 @@ export async function POST(
       );
     }
 
-    const quotesService = getQuoteService();
+    const quotesService = createQuotesService();
     const quoteData = quotesService.setManualPrice(ticker, preco);
 
     return NextResponse.json({
