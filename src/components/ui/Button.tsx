@@ -12,6 +12,7 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps) {
+  // Note: disabled:opacity-70 is used to ensure WCAG AA contrast compliance (see DISABLED_OPACITY in constants.ts)
   const baseStyles = 'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:pointer-events-none disabled:opacity-70';
   
   const variants = {
