@@ -1,12 +1,16 @@
 # ISSUES
 
-Here are the open issues in the repo:
+Here are the **only** issues that are ready for agent implementation:
 
 <issues-json>
 
 !`gh issue list --state open --label ready-for-agent --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
 
 </issues-json>
+
+# CONSTRAINT
+
+You MUST ONLY return issues from the JSON list above. Do NOT query for additional issues. Do NOT include any issue that is not in the provided JSON.
 
 # TASK
 
